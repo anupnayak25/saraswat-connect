@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 const services = [
   {
@@ -8,6 +9,7 @@ const services = [
     icon: "🛏️",
     image: "/assets/room-booking.jpg",
     buttonText: "Book Now",
+    link: "/rooms",
   },
   {
     id: 2,
@@ -16,6 +18,7 @@ const services = [
     icon: "🚗",
     image: "/assets/vehicle-booking.jpg",
     buttonText: "Book Now",
+    link: "/vehicles",
   },
   {
     id: 3,
@@ -24,6 +27,7 @@ const services = [
     icon: "🪔",
     image: "/assets/pooja-booking.jpg",
     buttonText: "Book Now",
+    link: "/poojas",
   },
   {
     id: 4,
@@ -32,6 +36,7 @@ const services = [
     icon: "📍",
     image: "/assets/tour-packages.jpg",
     buttonText: "View Packages",
+    link: "/packages",
   },
 ];
 
@@ -72,9 +77,11 @@ export default function Services() {
               {/* Description */}
               <div className="bg-gradient-to-b from-white to-[#f5e6d3] p-4 text-center">
                 <p className="text-gray-700 mb-4">{service.description}</p>
-                <button className="bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700 transition w-full font-semibold">
-                  {service.buttonText}
-                </button>
+                <Link href={service.link}>
+                  <button className="bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700 transition w-full font-semibold">
+                    {service.buttonText}
+                  </button>
+                </Link>
               </div>
             </div>
           ))}

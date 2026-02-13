@@ -1,13 +1,17 @@
 import Image from "next/image";
 import Link from "next/link";
+import room from '@/assets/room.png';
+import tour_package from '@/assets/package.png';
+import pooja from '@/assets/pooja.png';
+import vehicel from '@/assets/vehicel.png';
 
 const services = [
   {
     id: 1,
     title: "Room Booking",
-    description: "Book comfortable temple rooms",
+    description: "Book comfortable rooms",
     icon: "🛏️",
-    image: "/assets/room-booking.jpg",
+    image: room,
     buttonText: "Book Now",
     link: "/rooms",
   },
@@ -16,7 +20,7 @@ const services = [
     title: "Vehicle Booking",
     description: "Rent cars and buses",
     icon: "🚗",
-    image: "/assets/vehicle-booking.jpg",
+    image: vehicel,
     buttonText: "Book Now",
     link: "/vehicles",
   },
@@ -25,16 +29,16 @@ const services = [
     title: "Pooja Booking",
     description: "Reserve rituals and poojas",
     icon: "🪔",
-    image: "/assets/pooja-booking.jpg",
+    image: pooja,
     buttonText: "Book Now",
     link: "/poojas",
   },
   {
     id: 4,
     title: "Tour Packages",
-    description: "Explore divine temple tours",
+    description: "Explore temple tours",
     icon: "📍",
-    image: "/assets/tour-packages.jpg",
+    image: tour_package,
     buttonText: "View Packages",
     link: "/packages",
   },
@@ -42,13 +46,13 @@ const services = [
 
 export default function Services() {
   return (
-    <section id="services" className="py-16 bg-white">
+    <section id="services" className="py-16 mt-5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Title */}
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-stone-800 mb-4">
-            Book Temple Rooms, Vehicles, Poojas <span className="text-stone-600">& Spiritual Tours</span>
-          </h2>
+           Our Services
+           </h2>
         </div>
 
         {/* Service Cards Grid */}
@@ -57,12 +61,7 @@ export default function Services() {
             <div
               key={service.id}
               className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow border-4 border-teal-800">
-              {/* Icon Circle */}
-              <div className="bg-linear-to-b from-stone-50 to-white pt-6 pb-4 flex justify-center">
-                <div className="w-16 h-16 bg-teal-600 rounded-full flex items-center justify-center text-3xl shadow-md">
-                  {service.icon}
-                </div>
-              </div>
+             
 
               {/* Title */}
               <div className="text-center py-3">
@@ -70,8 +69,8 @@ export default function Services() {
               </div>
 
               {/* Image placeholder */}
-              <div className="relative h-40 bg-linear-to-br from-teal-100 to-teal-200 flex items-center justify-center">
-                <span className="text-stone-500 text-sm">Image Placeholder</span>
+              <div className="relative h-40 flex items-center justify-center">
+              <Image src={service.image} alt="service image"/>
               </div>
 
               {/* Description */}

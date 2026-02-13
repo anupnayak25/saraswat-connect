@@ -38,25 +38,21 @@ function StepIndicator() {
                   currentStep === step.number
                     ? "bg-orange-600 text-white scale-110 shadow-lg"
                     : currentStep > step.number
-                    ? "bg-green-500 text-white cursor-pointer hover:bg-green-600"
-                    : "bg-gray-300 text-gray-500 cursor-not-allowed"
-                }`}
-              >
+                      ? "bg-green-500 text-white cursor-pointer hover:bg-green-600"
+                      : "bg-gray-300 text-gray-500 cursor-not-allowed"
+                }`}>
                 {currentStep > step.number ? "✓" : step.number}
               </button>
               <span
                 className={`mt-2 text-xs font-medium ${
-                  currentStep >= step.number ? "text-gray-800" : "text-gray-500"
-                }`}
-              >
+                  currentStep >= step.number ? "text-stone-800" : "text-stone-500"
+                }`}>
                 {step.title}
               </span>
             </div>
             {index < steps.length - 1 && (
               <div
-                className={`h-1 flex-1 mx-2 transition ${
-                  currentStep > step.number ? "bg-green-500" : "bg-gray-300"
-                }`}
+                className={`h-1 flex-1 mx-2 transition ${currentStep > step.number ? "bg-green-500" : "bg-stone-300"}`}
               />
             )}
           </div>
@@ -70,15 +66,13 @@ function TripPlannerContent() {
   const { currentStep } = useTripPlanner();
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-stone-50">
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">Plan Your Spiritual Journey</h1>
-          <p className="text-gray-600">
-            Create a customized trip to temples and spiritual destinations
-          </p>
+          <h1 className="text-4xl font-bold text-stone-800 mb-2">Plan Your Spiritual Journey</h1>
+          <p className="text-stone-600">Create a customized trip to temples and spiritual destinations</p>
         </div>
 
         <StepIndicator />

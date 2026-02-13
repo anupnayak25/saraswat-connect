@@ -1,21 +1,75 @@
 @import "tailwindcss";
 
 :root {
+  /* Theme Colors */
+  --ocean-teal: #1f7a7a;
+  --sand-bg: #fff8ee;
+  --dark-stone: #2e2a26;
+
+  /* Teal Shades */
+  --teal-50: #f0f9f9;
+  --teal-100: #d4f1f1;
+  --teal-200: #a9e3e3;
+  --teal-300: #7dd5d5;
+  --teal-400: #52c7c7;
+  --teal-500: #1f7a7a;
+  --teal-600: #196262;
+  --teal-700: #134a4a;
+  --teal-800: #0d3131;
+  --teal-900: #071919;
+
+  /* Neutral Colors */
+  --stone-50: #faf9f8;
+  --stone-100: #f5f4f2;
+  --stone-200: #e8e6e3;
+  --stone-300: #d1ccc7;
+  --stone-400: #9e9791;
+  --stone-500: #6b655f;
+  --stone-600: #504c48;
+  --stone-700: #3c3935;
+  --stone-800: #2e2a26;
+  --stone-900: #1a1815;
+
   --background: #ffffff;
-  --foreground: #171717;
+  --foreground: var(--dark-stone);
 }
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
+  /* Primary Theme Colors */
+  --color-primary: var(--ocean-teal);
+  --color-secondary: var(--teal-800);
+  --color-background: #ffffff;
+  --color-foreground: var(--dark-stone);
+
+  /* Teal Color Scale */
+  --color-teal-50: var(--teal-50);
+  --color-teal-100: var(--teal-100);
+  --color-teal-200: var(--teal-200);
+  --color-teal-300: var(--teal-300);
+  --color-teal-400: var(--teal-400);
+  --color-teal-500: var(--teal-500);
+  --color-teal-600: var(--teal-600);
+  --color-teal-700: var(--teal-700);
+  --color-teal-800: var(--teal-800);
+  --color-teal-900: var(--teal-900);
+
+  /* Stone/Text Color Scale */
+  --color-stone-50: var(--stone-50);
+  --color-stone-100: var(--stone-100);
+  --color-stone-200: var(--stone-200);
+  --color-stone-300: var(--stone-300);
+  --color-stone-400: var(--stone-400);
+  --color-stone-500: var(--stone-500);
+  --color-stone-600: var(--stone-600);
+  --color-stone-700: var(--stone-700);
+  --color-stone-800: var(--stone-800);
+  --color-stone-900: var(--stone-900);
+
   --font-sans: var(--font-inter);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {

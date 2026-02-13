@@ -10,7 +10,6 @@ export default function Step4VehicleSelection() {
   const [agencies, setAgencies] = useState([]);
   const [loading, setLoading] = useState(true);
 
-
   useEffect(() => {
     let cancelled = false;
 
@@ -43,26 +42,25 @@ export default function Step4VehicleSelection() {
 
   // Filter agencies based on selected vehicle
   const availableAgencies = agencies.filter(
-    (agency) =>
-      !tripData.vehicleType || agency.vehicleTypes.includes(tripData.vehicleType.id)
+    (agency) => !tripData.vehicleType || agency.vehicleTypes.includes(tripData.vehicleType.id),
   );
 
   return (
     <div className="max-w-6xl mx-auto">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">Choose Your Vehicle</h2>
-        <p className="text-gray-600">Select vehicle type and travel agency</p>
+        <h2 className="text-3xl font-bold text-stone-800 mb-2">Choose Your Vehicle</h2>
+        <p className="text-stone-600">Select vehicle type and travel agency</p>
       </div>
 
       {loading ? (
         <div className="text-center py-12">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-600 mx-auto"></div>
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
         </div>
       ) : (
         <>
           {/* Vehicle Selection */}
           <div className="mb-8">
-            <h3 className="text-xl font-bold text-gray-800 mb-4">Select Vehicle Type</h3>
+            <h3 className="text-xl font-bold text-stone-800 mb-4">Select Vehicle Type</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {vehicles.map((vehicle) => {
                 const isSelected = tripData.vehicleType?.id === vehicle.id;
@@ -71,26 +69,21 @@ export default function Step4VehicleSelection() {
                     key={vehicle.id}
                     onClick={() => selectVehicle(vehicle)}
                     className={`p-4 rounded-lg border-2 transition ${
-                      isSelected
-                        ? "border-orange-500 bg-orange-50"
-                        : "border-gray-200 hover:border-orange-300"
-                    }`}
-                  >
+                      isSelected ? "border-orange-500 bg-orange-50" : "border-gray-200 hover:border-orange-300"
+                    }`}>
                     <div className="text-center">
                       <div className="text-5xl mb-3">
                         {vehicle.id === "bike"
                           ? "🏍️"
                           : vehicle.id === "car"
-                          ? "🚗"
-                          : vehicle.id === "suv"
-                          ? "🚙"
-                          : "🚌"}
+                            ? "🚗"
+                            : vehicle.id === "suv"
+                              ? "🚙"
+                              : "🚌"}
                       </div>
-                      <h4 className="font-bold text-gray-800 mb-1">{vehicle.name}</h4>
-                      <p className="text-sm text-gray-600 mb-2">{vehicle.seats} Seats</p>
-                      <p className="text-lg font-bold text-orange-600">
-                        ₹{vehicle.pricePerKm}/km
-                      </p>
+                      <h4 className="font-bold text-stone-800 mb-1">{vehicle.name}</h4>
+                      <p className="text-sm text-stone-600 mb-2">{vehicle.seats} Seats</p>
+                      <p className="text-lg font-bold text-teal-600">₹{vehicle.pricePerKm}/km</p>
                     </div>
                   </button>
                 );
@@ -100,24 +93,17 @@ export default function Step4VehicleSelection() {
 
           {/* Seat Selection */}
           {tripData.vehicleType && (
-            <div className="mb-8 p-6 bg-gray-50 rounded-lg">
-              <label className="block text-lg font-bold text-gray-800 mb-3">
-                Number of Seats Required
-              </label>
+            <div className="mb-8 p-6 bg-stone-50 rounded-lg">
+              <label className="block text-lg font-bold text-stone-800 mb-3">Number of Seats Required</label>
               <div className="flex items-center space-x-4">
                 <button
-                  onClick={() =>
-                    updateTripData({ seats: Math.max(1, tripData.seats - 1) })
-                  }
-                  className="w-12 h-12 bg-white border-2 border-gray-300 rounded-lg font-bold text-gray-700 hover:border-orange-500 transition"
-                >
+                  onClick={() => updateTripData({ seats: Math.max(1, tripData.seats - 1) })}
+                  className="w-12 h-12 bg-white border-2 border-stone-300 rounded-lg font-bold text-stone-700 hover:border-teal-500 transition">
                   −
                 </button>
                 <div className="flex-1 text-center">
-                  <p className="text-3xl font-bold text-gray-800">{tripData.seats}</p>
-                  <p className="text-sm text-gray-600">
-                    Max: {tripData.vehicleType.seats} seats
-                  </p>
+                  <p className="text-3xl font-bold text-stone-800">{tripData.seats}</p>
+                  <p className="text-sm text-stone-600">Max: {tripData.vehicleType.seats} seats</p>
                 </div>
                 <button
                   onClick={() =>
@@ -125,8 +111,7 @@ export default function Step4VehicleSelection() {
                       seats: Math.min(tripData.vehicleType.seats, tripData.seats + 1),
                     })
                   }
-                  className="w-12 h-12 bg-white border-2 border-gray-300 rounded-lg font-bold text-gray-700 hover:border-orange-500 transition"
-                >
+                  className="w-12 h-12 bg-white border-2 border-stone-300 rounded-lg font-bold text-stone-700 hover:border-teal-500 transition">
                   +
                 </button>
               </div>
@@ -136,7 +121,7 @@ export default function Step4VehicleSelection() {
           {/* Travel Agency Selection */}
           {tripData.vehicleType && (
             <div className="mb-8">
-              <h3 className="text-xl font-bold text-gray-800 mb-4">Select Travel Agency</h3>
+              <h3 className="text-xl font-bold text-stone-800 mb-4">Select Travel Agency</h3>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                 {availableAgencies.map((agency) => {
                   const isSelected = tripData.travelAgency?.id === agency.id;
@@ -145,24 +130,18 @@ export default function Step4VehicleSelection() {
                       key={agency.id}
                       onClick={() => selectAgency(agency)}
                       className={`p-6 rounded-lg border-2 transition text-left ${
-                        isSelected
-                          ? "border-orange-500 bg-orange-50"
-                          : "border-gray-200 hover:border-orange-300"
-                      }`}
-                    >
-                      <h4 className="font-bold text-gray-800 mb-2">{agency.name}</h4>
+                        isSelected ? "border-teal-500 bg-teal-50" : "border-stone-200 hover:border-teal-300"
+                      }`}>
+                      <h4 className="font-bold text-stone-800 mb-2">{agency.name}</h4>
                       <div className="flex items-center mb-2">
                         <span className="text-yellow-500">⭐</span>
-                        <span className="ml-1 text-sm font-medium text-gray-700">
-                          {agency.rating}
-                        </span>
+                        <span className="ml-1 text-sm font-medium text-stone-700">{agency.rating}</span>
                       </div>
-                      <p className="text-sm text-gray-600 mb-3">
+                      <p className="text-sm text-stone-600 mb-3">
                         Supports: {agency.vehicleTypes.join(", ").toUpperCase()}
                       </p>
-                      <p className="text-sm font-medium text-gray-700">
-                        Service Charge:{" "}
-                        {agency.surcharge === 0 ? "Free" : `₹${agency.surcharge}`}
+                      <p className="text-sm font-medium text-stone-700">
+                        Service Charge: {agency.surcharge === 0 ? "Free" : `₹${agency.surcharge}`}
                       </p>
                     </button>
                   );
@@ -174,31 +153,26 @@ export default function Step4VehicleSelection() {
           {/* Estimated Cost Preview */}
           {tripData.vehicleType && tripData.travelAgency && (
             <div className="mb-8 p-6 bg-linear-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
-              <h3 className="text-lg font-bold text-gray-800 mb-3">Estimated Cost</h3>
+              <h3 className="text-lg font-bold text-stone-800 mb-3">Estimated Cost</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>
-                  <p className="text-sm text-gray-600">Vehicle Cost</p>
-                  <p className="text-xl font-bold text-gray-800">
+                  <p className="text-sm text-stone-600">Vehicle Cost</p>
+                  <p className="text-xl font-bold text-stone-800">
                     ₹{(tripData.totalDistance * tripData.vehicleType.pricePerKm).toFixed(0)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Hotels</p>
-                  <p className="text-xl font-bold text-gray-800">
-                    ₹
-                    {tripData.selectedHotels
-                      .reduce((sum, h) => sum + h.price, 0)
-                      .toFixed(0)}
+                  <p className="text-sm text-stone-600">Hotels</p>
+                  <p className="text-xl font-bold text-stone-800">
+                    ₹{tripData.selectedHotels.reduce((sum, h) => sum + h.price, 0).toFixed(0)}
                   </p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Service Charge</p>
-                  <p className="text-xl font-bold text-gray-800">
-                    ₹{tripData.travelAgency.surcharge}
-                  </p>
+                  <p className="text-sm text-stone-600">Service Charge</p>
+                  <p className="text-xl font-bold text-stone-800">₹{tripData.travelAgency.surcharge}</p>
                 </div>
                 <div>
-                  <p className="text-sm text-gray-600">Estimated Total</p>
+                  <p className="text-sm text-stone-600">Estimated Total</p>
                   <p className="text-2xl font-bold text-green-600">
                     ₹
                     {(
@@ -218,19 +192,15 @@ export default function Step4VehicleSelection() {
       <div className="flex space-x-4">
         <button
           onClick={prevStep}
-          className="flex-1 py-3 border border-gray-300 rounded-lg font-semibold text-gray-700 hover:bg-gray-50 transition"
-        >
+          className="flex-1 py-3 border border-stone-300 rounded-lg font-semibold text-stone-700 hover:bg-stone-50 transition">
           ← Back
         </button>
         <button
           onClick={nextStep}
           disabled={!canProceed}
           className={`flex-1 py-3 rounded-lg font-semibold transition ${
-            canProceed
-              ? "bg-orange-600 text-white hover:bg-orange-700"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
-        >
+            canProceed ? "bg-teal-600 text-white hover:bg-teal-800" : "bg-stone-300 text-stone-500 cursor-not-allowed"
+          }`}>
           Review & Confirm →
         </button>
       </div>

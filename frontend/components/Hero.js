@@ -3,7 +3,7 @@ import Link from "next/link";
 
 export default function Hero() {
   return (
-    <section className="relative h-150 bg-linear-to-r from-orange-100 to-amber-100">
+    <section className="relative h-150 bg-linear-to-r from-teal-50 to-teal-100">
       {/* Background image placeholder */}
       <div className="absolute inset-0 bg-[url('/assets/hero-bg.jpg')] bg-cover bg-center opacity-90"></div>
 
@@ -22,11 +22,11 @@ export default function Hero() {
             </h1>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Link href="/trip-planner">
-                <button className="bg-orange-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-orange-700 transition shadow-lg">
+                <button className="bg-teal-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-teal-800 transition shadow-lg">
                   Plan Your Trip
                 </button>
               </Link>
-              <button className="bg-blue-900 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-800 transition shadow-lg">
+              <button className="bg-teal-700 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-teal-800 transition shadow-lg">
                 Explore Services
               </button>
             </div>

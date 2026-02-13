@@ -63,8 +63,8 @@ export default function Step1StartingPoint() {
   return (
     <div className="max-w-2xl mx-auto">
       <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">Where are you starting from?</h2>
-        <p className="text-gray-600">Select your journey&apos;s beginning point</p>
+        <h2 className="text-3xl font-bold text-stone-800 mb-2">Where are you starting from?</h2>
+        <p className="text-stone-600">Select your journey&apos;s beginning point</p>
       </div>
 
       {/* Search Bar */}
@@ -82,14 +82,13 @@ export default function Step1StartingPoint() {
 
         {/* Search Results Dropdown */}
         {searchResults.length > 0 && (
-          <div className="absolute z-10 w-full max-w-2xl mt-2 bg-white border border-gray-200 rounded-lg shadow-lg">
+          <div className="absolute z-10 w-full max-w-2xl mt-2 bg-white border border-stone-200 rounded-lg shadow-lg">
             {searchResults.map((location) => (
               <button
                 key={location.id}
                 onClick={() => selectLocation(location)}
-                className="w-full px-4 py-3 text-left hover:bg-gray-50 transition border-b last:border-b-0"
-              >
-                <div className="font-medium text-gray-800">{location.name}</div>
+                className="w-full px-4 py-3 text-left hover:bg-stone-50 transition border-b last:border-b-0">
+                <div className="font-medium text-stone-800">{location.name}</div>
               </button>
             ))}
           </div>
@@ -103,14 +102,11 @@ export default function Step1StartingPoint() {
             <div className="flex items-center space-x-3">
               <span className="text-2xl">📍</span>
               <div>
-                <p className="text-sm text-gray-600">Starting Point</p>
-                <p className="font-semibold text-gray-800">{tripData.startingPoint.name}</p>
+                <p className="text-sm text-stone-600">Starting Point</p>
+                <p className="font-semibold text-stone-800">{tripData.startingPoint.name}</p>
               </div>
             </div>
-            <button
-              onClick={() => updateTripData({ startingPoint: null })}
-              className="text-red-600 hover:text-red-800"
-            >
+            <button onClick={() => updateTripData({ startingPoint: null })} className="text-red-600 hover:text-red-800">
               ✕
             </button>
           </div>
@@ -120,14 +116,13 @@ export default function Step1StartingPoint() {
       {/* Popular Locations */}
       {!tripData.startingPoint && (
         <div>
-          <h3 className="text-lg font-semibold text-gray-800 mb-4">Popular Locations</h3>
+          <h3 className="text-lg font-semibold text-stone-800 mb-4">Popular Locations</h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             {popularLocations.map((location) => (
               <button
                 key={location.id}
                 onClick={() => selectLocation(location)}
-                className="p-4 border border-gray-200 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition text-left"
-              >
+                className="p-4 border border-gray-200 rounded-lg hover:border-orange-500 hover:bg-orange-50 transition text-left">
                 <div className="flex items-center space-x-3">
                   <span className="text-2xl">🏛️</span>
                   <span className="font-medium text-gray-800">{location.name}</span>
@@ -145,10 +140,9 @@ export default function Step1StartingPoint() {
           disabled={!tripData.startingPoint}
           className={`w-full py-3 rounded-lg font-semibold transition ${
             tripData.startingPoint
-              ? "bg-orange-600 text-white hover:bg-orange-700"
-              : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
-        >
+              ? "bg-teal-600 text-white hover:bg-teal-800"
+              : "bg-stone-300 text-stone-500 cursor-not-allowed"
+          }`}>
           Next: Select Destinations
         </button>
       </div>

@@ -43,13 +43,13 @@ const menuItems = [
 
 export default function More() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-stone-50">
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">More</h1>
-          <p className="text-gray-600">Additional information and settings</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-stone-800 mb-2">More</h1>
+          <p className="text-stone-600">Additional information and settings</p>
         </div>
 
         <div className="bg-white rounded-lg shadow-md overflow-hidden">
@@ -63,7 +63,7 @@ export default function More() {
                   <span className="text-2xl">{item.icon}</span>
                   <span className="text-lg font-medium text-gray-800">{item.title}</span>
                 </div>
-                <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-5 h-5 text-stone-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
                 </svg>
               </div>
@@ -72,8 +72,8 @@ export default function More() {
         </div>
 
         <div className="mt-8 bg-white rounded-lg shadow-md p-6">
-          <h2 className="text-xl font-bold text-gray-800 mb-4">App Version</h2>
-          <p className="text-gray-600">Version 1.0.0</p>
+          <h2 className="text-xl font-bold text-stone-800 mb-4">App Version</h2>
+          <p className="text-stone-600">Version 1.0.0</p>
         </div>
       </main>
 

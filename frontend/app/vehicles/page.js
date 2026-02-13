@@ -45,21 +45,21 @@ export default function VehicleBooking() {
   const [dropLocation, setDropLocation] = useState("");
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-stone-50">
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Vehicle Booking</h1>
-          <p className="text-gray-600">Rent cars and buses for your spiritual journey</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-stone-800 mb-2">Vehicle Booking</h1>
+          <p className="text-stone-600">Rent cars and buses for your spiritual journey</p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Booking Form */}
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-lg p-6 sticky top-24">
-              <h2 className="text-xl font-bold text-gray-800 mb-6">Search Vehicles</h2>
+              <h2 className="text-xl font-bold text-stone-800 mb-6">Search Vehicles</h2>
 
               <div className="space-y-4">
                 {/* Select Date */}
@@ -104,7 +104,7 @@ export default function VehicleBooking() {
                 </div>
 
                 {/* Search Button */}
-                <button className="w-full bg-blue-900 text-white py-3 rounded-lg font-semibold hover:bg-blue-800 transition">
+                <button className="w-full bg-teal-600 text-white py-3 rounded-lg font-semibold hover:bg-teal-800 transition">
                   Search Vehicles
                 </button>
               </div>
@@ -113,7 +113,7 @@ export default function VehicleBooking() {
 
           {/* Vehicle Options */}
           <div className="lg:col-span-2">
-            <h2 className="text-2xl font-bold text-gray-800 mb-6">Vehicle Options</h2>
+            <h2 className="text-2xl font-bold text-stone-800 mb-6">Vehicle Options</h2>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {vehicleOptions.map((vehicle) => (
@@ -121,21 +121,21 @@ export default function VehicleBooking() {
                   key={vehicle.id}
                   className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
                   {/* Vehicle Image */}
-                  <div className="h-48 bg-linear-to-br from-blue-200 to-cyan-300 flex items-center justify-center">
-                    <span className="text-gray-500">Vehicle Image</span>
+                  <div className="h-48 bg-linear-to-br from-teal-200 to-teal-400 flex items-center justify-center">
+                    <span className="text-stone-500">Vehicle Image</span>
                   </div>
 
                   {/* Vehicle Details */}
                   <div className="p-4">
-                    <h3 className="text-xl font-bold text-gray-800 mb-2">{vehicle.name}</h3>
+                    <h3 className="text-xl font-bold text-stone-800 mb-2">{vehicle.name}</h3>
                     <div className="flex items-center justify-between mb-4">
-                      <span className="text-2xl font-bold text-blue-900">₹ {vehicle.price}</span>
-                      <span className="text-sm text-gray-600">per Km</span>
+                      <span className="text-2xl font-bold text-teal-600">₹ {vehicle.price}</span>
+                      <span className="text-sm text-stone-600">per Km</span>
                     </div>
-                    <div className="flex items-center text-sm text-gray-600 mb-4">
-                      <span>{vehicle.seats} Seater</span>
+                    <div className="flex items-center text-sm text-stone-600 mb-4">
+                      <span>{vehicle.capacity} Capacity</span>
                     </div>
-                    <button className="w-full bg-blue-900 text-white py-2 rounded-lg font-semibold hover:bg-blue-800 transition">
+                    <button className="w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-800 transition">
                       Book Now
                     </button>
                   </div>

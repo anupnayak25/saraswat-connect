@@ -62,14 +62,14 @@ const tourPackages = [
 
 export default function TourPackages() {
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-stone-50">
       <Navbar />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">Tour Packages</h1>
-          <p className="text-gray-600">Explore divine temple tours and spiritual journeys</p>
+          <h1 className="text-3xl md:text-4xl font-bold text-stone-800 mb-2">Tour Packages</h1>
+          <p className="text-stone-600">Explore divine temple tours and spiritual journeys</p>
         </div>
 
         {/* Packages Grid */}
@@ -77,8 +77,8 @@ export default function TourPackages() {
           {tourPackages.map((pkg) => (
             <div key={pkg.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
               {/* Package Image */}
-              <div className="h-56 bg-linear-to-br from-amber-200 to-orange-300 flex items-center justify-center relative">
-                <span className="text-gray-500">Package Image</span>
+              <div className="h-56 bg-linear-to-br from-teal-200 to-teal-400 flex items-center justify-center relative">
+                <span className="text-stone-500">Package Image</span>
               </div>
 
               {/* Package Details */}
@@ -90,10 +90,10 @@ export default function TourPackages() {
                 </p>
 
                 <div className="mb-4">
-                  <p className="text-sm font-semibold text-gray-700 mb-2">Package Highlights:</p>
+                  <p className="text-sm font-semibold text-stone-700 mb-2">Package Highlights:</p>
                   <ul className="space-y-1">
-                    {pkg.highlights.slice(0, 3).map((highlight, index) => (
-                      <li key={index} className="text-sm text-gray-600 flex items-start">
+                    {pkg.highlights.map((highlight, index) => (
+                      <li key={index} className="text-sm text-stone-600 flex items-start">
                         <span className="text-green-600 mr-2">✓</span>
                         {highlight}
                       </li>
@@ -103,12 +103,12 @@ export default function TourPackages() {
 
                 <div className="flex items-center justify-between mb-4 pt-4 border-t border-gray-200">
                   <div>
-                    <p className="text-sm text-gray-600">From</p>
-                    <p className="text-2xl font-bold text-orange-600">₹ {pkg.price.toLocaleString()}</p>
+                    <p className="text-sm text-stone-600">From</p>
+                    <p className="text-2xl font-bold text-teal-600">₹ {pkg.price.toLocaleString()}</p>
                   </div>
                 </div>
 
-                <button className="w-full bg-orange-600 text-white py-3 rounded-lg font-semibold hover:bg-orange-700 transition">
+                <button className="w-full bg-teal-600 text-white py-3 rounded-lg font-semibold hover:bg-teal-800 transition">
                   View Package
                 </button>
               </div>
@@ -118,22 +118,22 @@ export default function TourPackages() {
 
         {/* Additional Info Section */}
         <div className="mt-12 bg-white rounded-lg shadow-md p-8">
-          <h2 className="text-2xl font-bold text-gray-800 mb-4">Why Choose Our Tour Packages?</h2>
+          <h2 className="text-2xl font-bold text-stone-800 mb-4">Why Choose Our Tour Packages?</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
               <div className="text-4xl mb-3">🏨</div>
-              <h3 className="font-bold text-gray-800 mb-2">Comfortable Stay</h3>
-              <p className="text-sm text-gray-600">Quality accommodations near temples</p>
+              <h3 className="font-bold text-stone-800 mb-2">Comfortable Stay</h3>
+              <p className="text-sm text-stone-600">Quality accommodations near temples</p>
             </div>
             <div className="text-center">
               <div className="text-4xl mb-3">🚐</div>
-              <h3 className="font-bold text-gray-800 mb-2">Easy Transport</h3>
-              <p className="text-sm text-gray-600">Hassle-free travel arrangements</p>
+              <h3 className="font-bold text-stone-800 mb-2">Easy Transport</h3>
+              <p className="text-sm text-stone-600">Hassle-free travel arrangements</p>
             </div>
             <div className="text-center">
               <div className="text-4xl mb-3">👨‍🏫</div>
-              <h3 className="font-bold text-gray-800 mb-2">Expert Guides</h3>
-              <p className="text-sm text-gray-600">Knowledgeable guides for spiritual insights</p>
+              <h3 className="font-bold text-stone-800 mb-2">Expert Guides</h3>
+              <p className="text-sm text-stone-600">Knowledgeable guides for spiritual insights</p>
             </div>
           </div>
         </div>

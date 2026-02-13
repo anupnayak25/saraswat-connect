@@ -77,7 +77,7 @@ export default function TourPackages() {
           {tourPackages.map((pkg) => (
             <div key={pkg.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
               {/* Package Image */}
-              <div className="h-56 bg-gradient-to-br from-amber-200 to-orange-300 flex items-center justify-center relative">
+              <div className="h-56 bg-linear-to-br from-amber-200 to-orange-300 flex items-center justify-center relative">
                 <span className="text-gray-500">Package Image</span>
               </div>
 

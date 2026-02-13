@@ -1,23 +1,30 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function ProtectedRoute({ children, requiredRole = null }) {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [isAuthorized, setIsAuthorized] = useState(false);
+
+  const isAuthorized = useMemo(() => {
+    if (loading) return false;
+    if (!user) return false;
+    if (requiredRole && user.user_metadata?.role !== requiredRole) return false;
+    return true;
+  }, [loading, user, requiredRole]);
 
   useEffect(() => {
-    if (!loading) {
-      if (!user) {
-        router.push("/login");
-      } else if (requiredRole && user.user_metadata?.role !== requiredRole) {
-        router.push("/");
-      } else {
-        setIsAuthorized(true);
-      }
+    if (loading) return;
+
+    if (!user) {
+      router.push("/login");
+      return;
+    }
+
+    if (requiredRole && user.user_metadata?.role !== requiredRole) {
+      router.push("/");
     }
   }, [user, loading, requiredRole, router]);
 

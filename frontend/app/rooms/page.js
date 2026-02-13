@@ -112,7 +112,7 @@ export default function RoomBooking() {
               {roomOptions.map((room) => (
                 <div key={room.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
                   {/* Room Image */}
-                  <div className="h-48 bg-gradient-to-br from-orange-200 to-amber-300 flex items-center justify-center">
+                  <div className="h-48 bg-linear-to-br from-orange-200 to-amber-300 flex items-center justify-center">
                     <span className="text-gray-500">Room Image</span>
                   </div>
 

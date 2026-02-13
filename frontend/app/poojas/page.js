@@ -116,7 +116,7 @@ export default function PoojaBooking() {
                   key={pooja.id}
                   className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
                   {/* Pooja Image */}
-                  <div className="relative h-48 bg-gradient-to-br from-orange-300 to-red-400 flex items-center justify-center">
+                  <div className="relative h-48 bg-linear-to-br from-orange-300 to-red-400 flex items-center justify-center">
                     <span className="text-white text-sm">Pooja Image</span>
                     <div className="absolute top-4 right-4 bg-orange-600 text-white px-3 py-1 rounded-lg font-bold">
                       ₹ {pooja.price}

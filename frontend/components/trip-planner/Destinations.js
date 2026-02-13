@@ -12,25 +12,37 @@ export default function Step2Destinations() {
   const [optimizing, setOptimizing] = useState(false);
 
   useEffect(() => {
-    if (searchQuery) {
-      searchLocations();
-    } else {
-      setSearchResults([]);
-    }
-  }, [searchQuery]);
+    let cancelled = false;
 
-  const searchLocations = async () => {
+    if (!searchQuery) {
+      setSearchResults([]);
+      setLoading(false);
+      return;
+    }
+
+    const startingPointId = tripData.startingPoint?.id;
+    const selectedIds = new Set(tripData.destinations.map((d) => d.id));
+
     setLoading(true);
-    const results = await tripPlannerAPI.searchLocations(searchQuery);
-    // Filter out already selected destinations and starting point
-    const filtered = results.filter(
-      (loc) =>
-        loc.id !== tripData.startingPoint?.id &&
-        !tripData.destinations.find((dest) => dest.id === loc.id)
-    );
-    setSearchResults(filtered);
-    setLoading(false);
-  };
+    (async () => {
+      try {
+        const results = await tripPlannerAPI.searchLocations(searchQuery);
+
+        // Filter out already selected destinations and starting point
+        const filtered = results.filter(
+          (loc) => loc.id !== startingPointId && !selectedIds.has(loc.id)
+        );
+
+        if (!cancelled) setSearchResults(filtered);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [searchQuery, tripData.startingPoint?.id, tripData.destinations]);
 
   const addDestination = (location) => {
     updateTripData({

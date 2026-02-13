@@ -100,7 +100,7 @@ export default function Contact() {
               </div>
             </div>
 
-            <div className="bg-gradient-to-br from-orange-600 to-red-600 rounded-lg shadow-md p-8 text-white">
+            <div className="bg-linear-to-br from-orange-600 to-red-600 rounded-lg shadow-md p-8 text-white">
               <h3 className="text-xl font-bold mb-3">Need Immediate Assistance?</h3>
               <p className="mb-4">Call our 24/7 helpline</p>
               <a

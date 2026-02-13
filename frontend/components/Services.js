@@ -58,7 +58,7 @@ export default function Services() {
               key={service.id}
               className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow border-4 border-[#d4a574]">
               {/* Icon Circle */}
-              <div className="bg-gradient-to-b from-[#f5e6d3] to-white pt-6 pb-4 flex justify-center">
+              <div className="bg-linear-to-b from-[#f5e6d3] to-white pt-6 pb-4 flex justify-center">
                 <div className="w-16 h-16 bg-orange-600 rounded-full flex items-center justify-center text-3xl shadow-md">
                   {service.icon}
                 </div>
@@ -70,12 +70,12 @@ export default function Services() {
               </div>
 
               {/* Image placeholder */}
-              <div className="relative h-40 bg-gradient-to-br from-amber-100 to-orange-100 flex items-center justify-center">
+              <div className="relative h-40 bg-linear-to-br from-amber-100 to-orange-100 flex items-center justify-center">
                 <span className="text-gray-500 text-sm">Image Placeholder</span>
               </div>
 
               {/* Description */}
-              <div className="bg-gradient-to-b from-white to-[#f5e6d3] p-4 text-center">
+              <div className="bg-linear-to-b from-white to-[#f5e6d3] p-4 text-center">
                 <p className="text-gray-700 mb-4">{service.description}</p>
                 <Link href={service.link}>
                   <button className="bg-orange-600 text-white px-6 py-2 rounded-lg hover:bg-orange-700 transition w-full font-semibold">

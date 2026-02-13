@@ -3,12 +3,12 @@ import Link from "next/link";
 
 export default function Hero() {
   return (
-    <section className="relative h-[600px] bg-gradient-to-r from-orange-100 to-amber-100">
+    <section className="relative h-150 bg-linear-to-r from-orange-100 to-amber-100">
       {/* Background image placeholder */}
       <div className="absolute inset-0 bg-[url('/assets/hero-bg.jpg')] bg-cover bg-center opacity-90"></div>
 
       {/* Overlay */}
-      <div className="absolute inset-0 bg-gradient-to-r from-black/30 to-transparent"></div>
+      <div className="absolute inset-0 bg-linear-to-r from-black/30 to-transparent"></div>
 
       {/* Content */}
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full">

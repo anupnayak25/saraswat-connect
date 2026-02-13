@@ -15,15 +15,24 @@ export default function Step3RouteRecommendations() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    loadRecommendations();
-  }, []);
+    let cancelled = false;
 
-  const loadRecommendations = async () => {
+    if (!tripData.optimizedRoute || tripData.optimizedRoute.length === 0) return;
+
     setLoading(true);
-    const data = await tripPlannerAPI.getRecommendations(tripData.optimizedRoute);
-    setRecommendations(data);
-    setLoading(false);
-  };
+    (async () => {
+      try {
+        const data = await tripPlannerAPI.getRecommendations(tripData.optimizedRoute);
+        if (!cancelled) setRecommendations(data);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [tripData.optimizedRoute]);
 
   const toggleHotel = (hotel) => {
     const isSelected = tripData.selectedHotels.find((h) => h.id === hotel.id);
@@ -72,7 +81,7 @@ export default function Step3RouteRecommendations() {
       </div>
 
       {/* Route Summary */}
-      <div className="mb-8 p-6 bg-gradient-to-r from-orange-50 to-amber-50 rounded-lg border border-orange-200">
+      <div className="mb-8 p-6 bg-linear-to-r from-orange-50 to-amber-50 rounded-lg border border-orange-200">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-bold text-gray-800">Route Overview</h3>
           <div className="flex space-x-6">

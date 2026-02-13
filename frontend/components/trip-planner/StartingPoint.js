@@ -12,28 +12,41 @@ export default function Step1StartingPoint() {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    loadPopularLocations();
+    let cancelled = false;
+
+    (async () => {
+      const locations = await tripPlannerAPI.getPopularLocations();
+      if (!cancelled) setPopularLocations(locations);
+    })();
+
+    return () => {
+      cancelled = true;
+    };
   }, []);
 
   useEffect(() => {
-    if (searchQuery) {
-      searchLocations();
-    } else {
+    let cancelled = false;
+
+    if (!searchQuery) {
       setSearchResults([]);
+      setLoading(false);
+      return;
     }
-  }, [searchQuery]);
 
-  const loadPopularLocations = async () => {
-    const locations = await tripPlannerAPI.getPopularLocations();
-    setPopularLocations(locations);
-  };
-
-  const searchLocations = async () => {
     setLoading(true);
-    const results = await tripPlannerAPI.searchLocations(searchQuery);
-    setSearchResults(results);
-    setLoading(false);
-  };
+    (async () => {
+      try {
+        const results = await tripPlannerAPI.searchLocations(searchQuery);
+        if (!cancelled) setSearchResults(results);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [searchQuery]);
 
   const selectLocation = (location) => {
     updateTripData({ startingPoint: location });
@@ -51,7 +64,7 @@ export default function Step1StartingPoint() {
     <div className="max-w-2xl mx-auto">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-gray-800 mb-2">Where are you starting from?</h2>
-        <p className="text-gray-600">Select your journey's beginning point</p>
+        <p className="text-gray-600">Select your journey&apos;s beginning point</p>
       </div>
 
       {/* Search Bar */}

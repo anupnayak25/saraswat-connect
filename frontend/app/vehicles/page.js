@@ -121,7 +121,7 @@ export default function VehicleBooking() {
                   key={vehicle.id}
                   className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
                   {/* Vehicle Image */}
-                  <div className="h-48 bg-gradient-to-br from-blue-200 to-cyan-300 flex items-center justify-center">
+                  <div className="h-48 bg-linear-to-br from-blue-200 to-cyan-300 flex items-center justify-center">
                     <span className="text-gray-500">Vehicle Image</span>
                   </div>
 

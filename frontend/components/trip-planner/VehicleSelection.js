@@ -10,18 +10,27 @@ export default function Step4VehicleSelection() {
   const [agencies, setAgencies] = useState([]);
   const [loading, setLoading] = useState(true);
 
+
   useEffect(() => {
-    loadVehiclesAndAgencies();
-  }, []);
+    let cancelled = false;
 
-  const loadVehiclesAndAgencies = async () => {
     setLoading(true);
-    const data = await tripPlannerAPI.getVehiclesAndAgencies(tripData);
-    setVehicles(data.vehicles);
-    setAgencies(data.agencies);
-    setLoading(false);
-  };
+    (async () => {
+      try {
+        // Current mock implementation doesn't use trip details.
+        const data = await tripPlannerAPI.getVehiclesAndAgencies();
+        if (cancelled) return;
+        setVehicles(data.vehicles);
+        setAgencies(data.agencies);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
 
+    return () => {
+      cancelled = true;
+    };
+  }, []);
   const selectVehicle = (vehicle) => {
     updateTripData({ vehicleType: vehicle, seats: 1 });
   };
@@ -164,7 +173,7 @@ export default function Step4VehicleSelection() {
 
           {/* Estimated Cost Preview */}
           {tripData.vehicleType && tripData.travelAgency && (
-            <div className="mb-8 p-6 bg-gradient-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
+            <div className="mb-8 p-6 bg-linear-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
               <h3 className="text-lg font-bold text-gray-800 mb-3">Estimated Cost</h3>
               <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
                 <div>

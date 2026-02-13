@@ -8,7 +8,7 @@ export default function About() {
           {/* Left side - Image */}
           <div className="relative">
             <div className="border-8 border-[#d4a574] rounded-lg overflow-hidden shadow-2xl">
-              <div className="relative h-96 bg-gradient-to-br from-orange-200 to-amber-300 flex items-center justify-center">
+              <div className="relative h-96 bg-linear-to-br from-orange-200 to-amber-300 flex items-center justify-center">
                 {/* Placeholder for temple image */}
                 <span className="text-gray-600 text-lg">Temple Image Placeholder</span>
               </div>

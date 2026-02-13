@@ -13,15 +13,22 @@ export default function Step5ReviewBilling() {
   const router = useRouter();
 
   useEffect(() => {
-    calculateCost();
-  }, []);
+    let cancelled = false;
 
-  const calculateCost = async () => {
     setLoading(true);
-    const breakdown = await tripPlannerAPI.calculateCost(tripData);
-    setCostBreakdown(breakdown);
-    setLoading(false);
-  };
+    (async () => {
+      try {
+        const breakdown = await tripPlannerAPI.calculateCost(tripData);
+        if (!cancelled) setCostBreakdown(breakdown);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, [tripData]);
 
   const handleConfirmBooking = async () => {
     setSubmitting(true);

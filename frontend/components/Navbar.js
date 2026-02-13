@@ -28,6 +28,9 @@ export default function Navbar() {
             <Link href="/" className="text-gray-700 hover:text-orange-600 transition">
               Home
             </Link>
+            <Link href="/trip-planner" className="text-gray-700 hover:text-orange-600 transition">
+              Plan Trip
+            </Link>
             <Link href="/about" className="text-gray-700 hover:text-orange-600 transition">
               About Us
             </Link>
@@ -63,6 +66,9 @@ export default function Navbar() {
             <div className="flex flex-col space-y-3">
               <Link href="/" className="text-gray-700 hover:text-orange-600 transition">
                 Home
+              </Link>
+              <Link href="/trip-planner" className="text-gray-700 hover:text-orange-600 transition">
+                Plan Trip
               </Link>
               <Link href="/about" className="text-gray-700 hover:text-orange-600 transition">
                 About Us

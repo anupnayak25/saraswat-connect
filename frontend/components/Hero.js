@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Hero() {
   return (
@@ -20,9 +21,11 @@ export default function Hero() {
               Vehicles, Poojas & Spiritual Tours
             </h1>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-              <button className="bg-orange-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-orange-700 transition shadow-lg">
-                Book Now
-              </button>
+              <Link href="/trip-planner">
+                <button className="bg-orange-600 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-orange-700 transition shadow-lg">
+                  Plan Your Trip
+                </button>
+              </Link>
               <button className="bg-blue-900 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-blue-800 transition shadow-lg">
                 Explore Services
               </button>

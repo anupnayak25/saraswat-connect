@@ -43,9 +43,6 @@ export default function Navbar() {
             <Link href="/contact" className="text-stone-700 hover:text-teal-600 transition">
               Contact
             </Link>
-            <button className="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-800 transition">
-              Book Now
-            </button>
           </div>
 
           {/* Mobile menu button */}

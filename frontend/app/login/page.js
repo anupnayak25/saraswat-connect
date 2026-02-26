@@ -24,11 +24,12 @@ export default function Login() {
       setError(error.message);
       setLoading(false);
     } else {
-      // Redirect based on role
-      const role = data.user?.user_metadata?.role;
+      // Redirect based on role from users table
+      const role = data.user?.role;
+
       if (role === "admin") {
-        router.push("/admin");
-      } else if (role === "hotel") {
+        router.push("/saraswat-admin");
+      } else if (role === "hotel-admin") {
         router.push("/hotel");
       } else {
         router.push("/");
@@ -95,10 +96,18 @@ export default function Login() {
             </button>
           </div>
 
-          <div className="text-sm text-center">
-            <Link href="/" className="font-medium text-orange-600 hover:text-orange-500">
-              Back to Home
-            </Link>
+          <div className="text-sm text-center space-y-2">
+            <div>
+              Don&apos;t have an account?{" "}
+              <Link href="/signup" className="font-medium text-orange-600 hover:text-orange-500">
+                Sign up
+              </Link>
+            </div>
+            <div>
+              <Link href="/" className="font-medium text-orange-600 hover:text-orange-500">
+                Back to Home
+              </Link>
+            </div>
           </div>
         </form>
 

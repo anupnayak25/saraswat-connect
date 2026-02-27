@@ -168,7 +168,7 @@ export default function PoojasPage() {
   return (
     <AdminLayout title="Poojas Management" description="Manage temple ceremonies and rituals">
       {({ showMessage }) => {
-        setMessageHandler(() => showMessage);
+        messageHandlerRef.current = showMessage;
 
         return (
           <>

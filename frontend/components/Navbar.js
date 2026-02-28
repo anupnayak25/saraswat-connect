@@ -3,9 +3,19 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const {user, signOut} = useAuth();
+
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error("Error signing out:", error);
+    }
+  };
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -43,6 +53,15 @@ export default function Navbar() {
             <Link href="/contact" className="text-stone-700 hover:text-teal-600 transition">
               Contact
             </Link>
+            {user ? (
+              <button onClick={handleSignOut} className="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-800 transition">
+                Sign Out
+              </button>
+            ) : (
+              <Link href="/login" className="bg-teal-600 text-white px-6 py-2 rounded-lg hover:bg-teal-800 transition">
+                login
+              </Link>
+            )}
           </div>
 
           {/* Mobile menu button */}

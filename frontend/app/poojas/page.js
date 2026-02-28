@@ -69,7 +69,15 @@ export default function PoojaBooking() {
           <div className="lg:col-span-1">
             <div className="bg-white rounded-lg shadow-lg p-6 sticky top-24">
               <h2 className="text-xl font-bold text-stone-800 mb-6">Book Pooja</h2>
-
+              <div className="space-y-4">
+                <label className="block text-sm font-medium text-stone-700 mb-2">Select Temple</label>
+                <select className="w-full px-4 py-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent mb-4">
+                  <option value="">Choose a Temple</option>
+                  <option value="temple1">Temple 1</option>
+                  <option value="temple2">Temple 2</option>
+                  <option value="temple3">Temple 3</option>
+                </select>
+                </div>
               <div className="space-y-4">
                 {/* Select Date */}
                 <div>
@@ -82,25 +90,9 @@ export default function PoojaBooking() {
                   />
                 </div>
 
-                {/* Select Pooja */}
-                <div>
-                  <label className="block text-sm font-medium text-stone-700 mb-2">Select Pooja</label>
-                  <select
-                    value={selectedPooja}
-                    onChange={(e) => setSelectedPooja(e.target.value)}
-                    className="w-full px-4 py-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent">
-                    <option value="">Choose a Pooja</option>
-                    {poojaOptions.map((pooja) => (
-                      <option key={pooja.id} value={pooja.id}>
-                        {pooja.name} - ₹{pooja.price}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-
                 {/* Book Button */}
                 <button className="w-full bg-teal-600 text-white py-3 rounded-lg font-semibold hover:bg-teal-800 transition">
-                  Book Pooja
+                 Search Pooja
                 </button>
               </div>
             </div>

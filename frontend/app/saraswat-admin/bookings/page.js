@@ -16,7 +16,7 @@ export default function BookingsPage() {
   const loadData = async () => {
     setLoading(true);
     try {
-      const [roomBookings, vehicleBookings, poojaBookings, packageBookings] = await Promise.all([
+      const [roomBookings, vehicleBookings, packageBookings] = await Promise.all([
         supabase
           .from("room_bookings")
           .select("*, room:rooms(name), user:users(full_name, email)")
@@ -24,10 +24,6 @@ export default function BookingsPage() {
         supabase
           .from("vehicle_bookings")
           .select("*, vehicle:vehicles(type, vehicle_number), user:users(full_name, email)")
-          .order("created_at", { ascending: false }),
-        supabase
-          .from("pooja_bookings")
-          .select("*, pooja:poojas(name), user:users(full_name, email)")
           .order("created_at", { ascending: false }),
         supabase
           .from("package_bookings")
@@ -38,7 +34,6 @@ export default function BookingsPage() {
       const allBookings = [
         ...(roomBookings.data || []).map((b) => ({ ...b, type: "Room" })),
         ...(vehicleBookings.data || []).map((b) => ({ ...b, type: "Vehicle" })),
-        ...(poojaBookings.data || []).map((b) => ({ ...b, type: "Pooja" })),
         ...(packageBookings.data || []).map((b) => ({ ...b, type: "Package" })),
       ].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
@@ -59,7 +54,7 @@ export default function BookingsPage() {
         <>
           {/* Filter Tabs */}
           <div className="mb-6 flex space-x-2">
-            {["all", "room", "vehicle", "pooja", "package"].map((type) => (
+            {["all", "room", "vehicle", "package"].map((type) => (
               <button
                 key={type}
                 onClick={() => setFilterType(type)}
@@ -121,11 +116,7 @@ export default function BookingsPage() {
                             </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                            {booking.room?.name ||
-                              booking.vehicle?.type ||
-                              booking.pooja?.name ||
-                              booking.package?.name ||
-                              "N/A"}
+                            {booking.room?.name || booking.vehicle?.type || booking.package?.name || "N/A"}
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                             <div>{booking.user?.full_name || "N/A"}</div>
@@ -162,7 +153,7 @@ export default function BookingsPage() {
           )}
 
           {/* Summary Stats */}
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-4 gap-6">
+          <div className="mt-8 grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="bg-white rounded-lg shadow p-6">
               <div className="text-sm text-gray-600 mb-1">Total Bookings</div>
               <div className="text-3xl font-bold text-gray-900">{bookings.length}</div>
@@ -170,12 +161,6 @@ export default function BookingsPage() {
             <div className="bg-white rounded-lg shadow p-6">
               <div className="text-sm text-gray-600 mb-1">Room Bookings</div>
               <div className="text-3xl font-bold text-blue-600">{bookings.filter((b) => b.type === "Room").length}</div>
-            </div>
-            <div className="bg-white rounded-lg shadow p-6">
-              <div className="text-sm text-gray-600 mb-1">Pooja Bookings</div>
-              <div className="text-3xl font-bold text-orange-600">
-                {bookings.filter((b) => b.type === "Pooja").length}
-              </div>
             </div>
             <div className="bg-white rounded-lg shadow p-6">
               <div className="text-sm text-gray-600 mb-1">Package Bookings</div>

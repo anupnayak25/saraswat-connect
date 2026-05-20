@@ -17,7 +17,7 @@ export default function AdminSidebar({ activePage }) {
     { name: "Dashboard", href: "/admin", icon: "📊" },
     { name: "Rooms", href: "/admin/rooms", icon: "🛏️" },
     { name: "Vehicles", href: "/admin/vehicles", icon: "🚗" },
-    { name: "Poojas", href: "/admin/poojas", icon: "🪔" },
+    // { name: "Poojas", href: "/admin/poojas", icon: "🪔" },
     { name: "Tour Packages", href: "/admin/packages", icon: "📍" },
     { name: "All Bookings", href: "/admin/bookings", icon: "📋" },
     { name: "Messages", href: "/admin/messages", icon: "💬" },

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import HotelSidebar from "@/components/HotelSidebar";
 import { supabase } from "@/lib/supabase";
@@ -10,11 +10,7 @@ function HotelBookingsContent() {
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
 
-  useEffect(() => {
-    fetchBookings();
-  }, [filter]);
-
-  const fetchBookings = async () => {
+  const fetchBookings = useCallback(async () => {
     try {
       let query = supabase
         .from("room_bookings")
@@ -39,7 +35,11 @@ function HotelBookingsContent() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [filter]);
+
+  useEffect(() => {
+    fetchBookings();
+  }, [fetchBookings]);
 
   const updateBookingStatus = async (id, status) => {
     try {
@@ -186,7 +186,7 @@ function HotelBookingsContent() {
 
 export default function HotelBookings() {
   return (
-    <ProtectedRoute requiredRole="hotel">
+    <ProtectedRoute requiredRole="hotel-admin">
       <HotelBookingsContent />
     </ProtectedRoute>
   );

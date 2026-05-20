@@ -73,6 +73,10 @@ export default function Step3RouteRecommendations() {
     }
   };
 
+  const displayRating = (rating) => (rating === null || rating === undefined ? "N/A" : rating);
+
+  const displayList = (list) => (Array.isArray(list) && list.length > 0 ? list.join(" • ") : "—");
+
   return (
     <div className="max-w-6xl mx-auto">
       <div className="text-center mb-8">
@@ -155,10 +159,10 @@ export default function Step3RouteRecommendations() {
                       }`}>
                       <div className="flex justify-between items-start mb-2">
                         <h4 className="font-bold text-stone-800">{hotel.name}</h4>
-                        <span className="text-yellow-500">⭐ {hotel.rating}</span>
+                        <span className="text-yellow-500">⭐ {displayRating(hotel.rating)}</span>
                       </div>
                       <p className="text-sm text-stone-600 mb-2">📍 {hotel.location}</p>
-                      <p className="text-sm text-stone-600 mb-3">{hotel.amenities.join(" • ")}</p>
+                      <p className="text-sm text-stone-600 mb-3">{displayList(hotel.amenities)}</p>
                       <div className="flex items-center justify-between">
                         <span className="text-lg font-bold text-stone-800">₹{hotel.price}/night</span>
                         <button
@@ -190,7 +194,7 @@ export default function Step3RouteRecommendations() {
                       }`}>
                       <div className="flex justify-between items-start mb-2">
                         <h4 className="font-bold text-stone-800">{restaurant.name}</h4>
-                        <span className="text-yellow-500">⭐ {restaurant.rating}</span>
+                        <span className="text-yellow-500">⭐ {displayRating(restaurant.rating)}</span>
                       </div>
                       <p className="text-sm text-stone-600 mb-2">📍 {restaurant.location}</p>
                       <p className="text-sm text-stone-600 mb-3">🍽️ {restaurant.cuisine}</p>
@@ -225,7 +229,7 @@ export default function Step3RouteRecommendations() {
                       }`}>
                       <div className="flex justify-between items-start mb-2">
                         <h4 className="font-bold text-stone-800">{attraction.name}</h4>
-                        <span className="text-yellow-500">⭐ {attraction.rating}</span>
+                        <span className="text-yellow-500">⭐ {displayRating(attraction.rating)}</span>
                       </div>
                       <p className="text-sm text-stone-600 mb-2">📍 {attraction.location}</p>
                       <p className="text-sm text-stone-600 mb-3">🏷️ {attraction.type}</p>

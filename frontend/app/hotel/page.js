@@ -84,7 +84,7 @@ function HotelDashboardContent() {
 
 export default function HotelDashboard() {
   return (
-    <ProtectedRoute requiredRole="hotel">
+    <ProtectedRoute requiredRole="hotel-admin">
       <HotelDashboardContent />
     </ProtectedRoute>
   );

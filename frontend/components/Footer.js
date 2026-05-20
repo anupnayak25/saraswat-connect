@@ -17,7 +17,7 @@ export default function Footer() {
               </div>
             </div>
             <p className="text-stone-700 text-sm leading-relaxed">
-              Your trusted platform for temple room booking, pooja reservations, vehicle rentals and spiritual tours.
+              Your trusted platform for temple room booking, vehicle rentals and spiritual tours.
             </p>
           </div>
 
@@ -40,11 +40,11 @@ export default function Footer() {
                   ▸ Vehicle Booking
                 </Link>
               </li>
-              <li>
+              {/* <li>
                 <Link href="/poojas" className="text-stone-700 hover:text-teal-600 transition text-sm">
                   ▸ Pooja Booking
                 </Link>
-              </li>
+              </li> */}
               <li>
                 <Link href="/packages" className="text-stone-700 hover:text-teal-600 transition text-sm">
                   ▸ Tour Packages
@@ -65,7 +65,7 @@ export default function Footer() {
               <p className="text-stone-700">
                 <span className="font-semibold">Phone:</span>
                 <br />
-                📞 +91 98625 42210
+                📞 +91 99724 15773
               </p>
               <p className="text-stone-700">
                 <span className="font-semibold">Address:</span>

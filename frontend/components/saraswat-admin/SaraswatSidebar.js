@@ -16,7 +16,7 @@ export default function SaraswatSidebar() {
 
   const menuItems = [
     { name: "Dashboard", href: "/saraswat-admin", icon: "📊" },
-    { name: "Poojas", href: "/saraswat-admin/poojas", icon: "🪔" },
+    // { name: "Poojas", href: "/saraswat-admin/poojas", icon: "🪔" },
     { name: "Places", href: "/saraswat-admin/places", icon: "📍" },
     { name: "Packages", href: "/saraswat-admin/packages", icon: "📦" },
     { name: "Rooms", href: "/saraswat-admin/rooms", icon: "🛏️" },

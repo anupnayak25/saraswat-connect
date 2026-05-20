@@ -5,7 +5,7 @@ export default function Hero() {
   return (
     <section className="relative h-150 bg-linear-to-r from-teal-50 to-teal-100">
       {/* Background image placeholder */}
-      <div className="absolute inset-0 bg-[url('/assets/hero-bg.jpg')] bg-cover bg-center opacity-90"></div>
+      {/* <div className="absolute inset-0 bg-[url('/assets/hero-bg.jpg')] bg-cover bg-center opacity-90"></div> */}
 
       {/* Overlay */}
       <div className="absolute inset-0 bg-linear-to-r from-teal-800 to-transparent"></div>
@@ -16,9 +16,9 @@ export default function Hero() {
           {/* Left side - Text content */}
           <div className="flex-1 text-center lg:text-left">
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold text-white drop-shadow-lg mb-8">
-              Book Temple Rooms,
+              Book Rooms,
               <br />
-              Vehicles, Poojas & Spiritual Tours
+              Vehicles & Tours
             </h1>
             <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
               <Link href="/trip-planner">
@@ -26,18 +26,21 @@ export default function Hero() {
                   Plan Your Trip
                 </button>
               </Link>
-             <a href="#services"> <button className="bg-teal-700 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-teal-800 transition shadow-lg">
-                Explore Services
-              </button></a>
+              <a href="#services">
+                {" "}
+                <button className="bg-teal-700 text-white px-8 py-3 rounded-lg text-lg font-semibold hover:bg-teal-800 transition shadow-lg">
+                  Explore Services
+                </button>
+              </a>
             </div>
           </div>
 
           {/* Right side - Goddess image placeholder */}
           <div className="flex-1 hidden lg:flex justify-end items-center">
-              {/* Placeholder for goddess Saraswati image */}
-              <div className="w-full h-full rounded-full flex items-center justify-center backdrop-blur-sm">
-               <Image src={image} className="" alt="hero image"/>
-              </div>
+            {/* Placeholder for goddess Saraswati image */}
+            <div className="w-full h-full rounded-full flex items-center justify-center backdrop-blur-sm">
+              <Image src={image} className="" alt="hero image" />
+            </div>
           </div>
         </div>
       </div>

@@ -7,7 +7,6 @@ import AdminLayout from "@/components/saraswat-admin/AdminLayout";
 
 export default function SaraswatAdminDashboard() {
   const [stats, setStats] = useState({
-    poojas: 0,
     places: 0,
     packages: 0,
     rooms: 0,
@@ -23,61 +22,41 @@ export default function SaraswatAdminDashboard() {
   const loadDashboardData = async () => {
     setLoading(true);
     try {
-      const [
-        poojasCount,
-        placesCount,
-        packagesCount,
-        roomsCount,
-        roomBookings,
-        vehicleBookings,
-        poojaBookings,
-        packageBookings,
-      ] = await Promise.all([
-        supabase.from("poojas").select("id", { count: "exact", head: true }),
-        supabase.from("places").select("id", { count: "exact", head: true }),
-        supabase.from("packages").select("id", { count: "exact", head: true }),
-        supabase.from("rooms").select("id", { count: "exact", head: true }),
-        supabase
-          .from("room_bookings")
-          .select("*, room:rooms(name), user:users(full_name, email)")
-          .order("created_at", { ascending: false })
-          .limit(5),
-        supabase
-          .from("vehicle_bookings")
-          .select("*, vehicle:vehicles(type), user:users(full_name, email)")
-          .order("created_at", { ascending: false })
-          .limit(5),
-        supabase
-          .from("pooja_bookings")
-          .select("*, pooja:poojas(name), user:users(full_name, email)")
-          .order("created_at", { ascending: false })
-          .limit(5),
-        supabase
-          .from("package_bookings")
-          .select("*, package:packages(name), user:users(full_name, email)")
-          .order("created_at", { ascending: false })
-          .limit(5),
-      ]);
+      const [placesCount, packagesCount, roomsCount, roomBookings, vehicleBookings, packageBookings] =
+        await Promise.all([
+          supabase.from("places").select("id", { count: "exact", head: true }),
+          supabase.from("packages").select("id", { count: "exact", head: true }),
+          supabase.from("rooms").select("id", { count: "exact", head: true }),
+          supabase
+            .from("room_bookings")
+            .select("*, room:rooms(name), user:users(full_name, email)")
+            .order("created_at", { ascending: false })
+            .limit(5),
+          supabase
+            .from("vehicle_bookings")
+            .select("*, vehicle:vehicles(type), user:users(full_name, email)")
+            .order("created_at", { ascending: false })
+            .limit(5),
+          supabase
+            .from("package_bookings")
+            .select("*, package:packages(name), user:users(full_name, email)")
+            .order("created_at", { ascending: false })
+            .limit(5),
+        ]);
 
       const allRecentBookings = [
         ...(roomBookings.data || []).map((b) => ({ ...b, type: "Room" })),
         ...(vehicleBookings.data || []).map((b) => ({ ...b, type: "Vehicle" })),
-        ...(poojaBookings.data || []).map((b) => ({ ...b, type: "Pooja" })),
         ...(packageBookings.data || []).map((b) => ({ ...b, type: "Package" })),
       ]
         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
         .slice(0, 10);
 
       setStats({
-        poojas: poojasCount.count || 0,
         places: placesCount.count || 0,
         packages: packagesCount.count || 0,
         rooms: roomsCount.count || 0,
-        totalBookings:
-          (roomBookings.count || 0) +
-          (vehicleBookings.count || 0) +
-          (poojaBookings.count || 0) +
-          (packageBookings.count || 0),
+        totalBookings: (roomBookings.count || 0) + (vehicleBookings.count || 0) + (packageBookings.count || 0),
         recentBookings: allRecentBookings,
       });
     } catch (error) {
@@ -88,7 +67,6 @@ export default function SaraswatAdminDashboard() {
   };
 
   const quickLinks = [
-    { name: "Manage Poojas", href: "/saraswat-admin/poojas", icon: "🪔", color: "bg-orange-500" },
     { name: "Manage Places", href: "/saraswat-admin/places", icon: "📍", color: "bg-blue-500" },
     { name: "Manage Packages", href: "/saraswat-admin/packages", icon: "📦", color: "bg-green-500" },
     { name: "Manage Rooms", href: "/saraswat-admin/rooms", icon: "🛏️", color: "bg-purple-500" },
@@ -107,17 +85,7 @@ export default function SaraswatAdminDashboard() {
           ) : (
             <>
               {/* Stats Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6 mb-8">
-                <div className="bg-white rounded-lg shadow p-6">
-                  <div className="flex items-center justify-between">
-                    <div>
-                      <p className="text-sm text-gray-600 mb-1">Poojas</p>
-                      <p className="text-3xl font-bold text-orange-600">{stats.poojas}</p>
-                    </div>
-                    <div className="text-4xl">🪔</div>
-                  </div>
-                </div>
-
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
                 <div className="bg-white rounded-lg shadow p-6">
                   <div className="flex items-center justify-between">
                     <div>
@@ -162,7 +130,7 @@ export default function SaraswatAdminDashboard() {
               {/* Quick Links */}
               <div className="mb-8">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">Quick Actions</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   {quickLinks.map((link) => (
                     <Link
                       key={link.name}
@@ -217,11 +185,7 @@ export default function SaraswatAdminDashboard() {
                               </span>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                              {booking.room?.name ||
-                                booking.vehicle?.type ||
-                                booking.pooja?.name ||
-                                booking.package?.name ||
-                                "N/A"}
+                              {booking.room?.name || booking.vehicle?.type || booking.package?.name || "N/A"}
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                               {booking.user?.full_name || booking.user?.email || "N/A"}

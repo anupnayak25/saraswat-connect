@@ -9,7 +9,6 @@ function AdminDashboardContent() {
   const [stats, setStats] = useState({
     rooms: 0,
     vehicles: 0,
-    poojas: 0,
     packages: 0,
     bookings: 0,
     messages: 0,
@@ -22,10 +21,9 @@ function AdminDashboardContent() {
 
   const fetchStats = async () => {
     try {
-      const [rooms, vehicles, poojas, packages, bookings, messages] = await Promise.all([
+      const [rooms, vehicles, packages, bookings, messages] = await Promise.all([
         supabase.from("rooms").select("*", { count: "exact", head: true }),
         supabase.from("vehicles").select("*", { count: "exact", head: true }),
-        supabase.from("poojas").select("*", { count: "exact", head: true }),
         supabase.from("tour_packages").select("*", { count: "exact", head: true }),
         supabase.from("room_bookings").select("*", { count: "exact", head: true }),
         supabase.from("contact_messages").select("*", { count: "exact", head: true }),
@@ -34,7 +32,6 @@ function AdminDashboardContent() {
       setStats({
         rooms: rooms.count || 0,
         vehicles: vehicles.count || 0,
-        poojas: poojas.count || 0,
         packages: packages.count || 0,
         bookings: bookings.count || 0,
         messages: messages.count || 0,
@@ -49,7 +46,6 @@ function AdminDashboardContent() {
   const statCards = [
     { title: "Total Rooms", value: stats.rooms, icon: "🛏️", color: "bg-blue-500" },
     { title: "Total Vehicles", value: stats.vehicles, icon: "🚗", color: "bg-green-500" },
-    { title: "Total Poojas", value: stats.poojas, icon: "🪔", color: "bg-orange-500" },
     { title: "Tour Packages", value: stats.packages, icon: "📍", color: "bg-purple-500" },
     { title: "Total Bookings", value: stats.bookings, icon: "📋", color: "bg-red-500" },
     { title: "Messages", value: stats.messages, icon: "💬", color: "bg-yellow-500" },
@@ -62,7 +58,7 @@ function AdminDashboardContent() {
       <div className="flex-1 p-8">
         <div className="mb-8">
           <h1 className="text-3xl font-bold text-gray-800">Admin Dashboard</h1>
-          <p className="text-gray-600 mt-1">Welcome back! Here's an overview of your system.</p>
+          <p className="text-gray-600 mt-1">Welcome back! Here&apos;s an overview of your system.</p>
         </div>
 
         {loading ? (

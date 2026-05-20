@@ -8,9 +8,9 @@ const inter = Inter({
 });
 
 export const metadata = {
-  title: "Saraswath Connect - Temple Rooms, Vehicles, Poojas & Spiritual Tours",
+  title: "Saraswath Connect - Temple Rooms, Vehicles & Spiritual Tours",
   description:
-    "Book temple rooms, vehicles, poojas and spiritual tour packages with Saraswath Connect. Your trusted platform for seamless temple bookings.",
+    "Book temple rooms, vehicles and spiritual tour packages with Saraswath Connect. Your trusted platform for seamless temple bookings.",
 };
 
 export default function RootLayout({ children }) {

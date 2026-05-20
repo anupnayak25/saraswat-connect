@@ -1,106 +1,157 @@
 // API service for Trip Planner backend calls
+//
+// NOTE: This project uses Supabase with public SELECT policies for:
+// - places
+// - rooms
+// - tourist_places
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "/api";
+import { supabase } from "@/lib/supabase";
 
-// Mock data for development
-const POPULAR_LOCATIONS = [
-  { id: 1, name: "Udupi Temple", lat: 13.3409, lng: 74.7421 },
-  { id: 2, name: "Dharmasthala Temple", lat: 12.9497, lng: 75.3803 },
-  { id: 3, name: "Kollur Mookambika Temple", lat: 13.8778, lng: 74.7982 },
-  { id: 4, name: "Kukke Subramanya Temple", lat: 12.8419, lng: 75.5996 },
-  { id: 5, name: "Horanadu Annapoorneshwari Temple", lat: 13.2167, lng: 75.2167 },
-  { id: 6, name: "Kateel Durga Parameshwari Temple", lat: 12.9833, lng: 74.9833 },
-  { id: 7, name: "Sringeri Sharada Peetham", lat: 13.4167, lng: 75.25 },
-  { id: 8, name: "Mangalore", lat: 12.9141, lng: 74.856 },
-];
+function toPlace(row) {
+  return {
+    id: row.id,
+    name: row.name,
+  };
+}
+
+function toHotel(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    location: row.place?.name ?? "",
+    rating: null,
+    price: Number(row.price_per_night ?? 0),
+    amenities: Array.isArray(row.amenities) ? row.amenities : [],
+    image_url: row.image_url ?? null,
+  };
+}
+
+function toAttraction(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    location: row.place?.name ?? "",
+    type: row.type ?? "attraction",
+    rating: null,
+    entryFee: Number(row.entry_fee ?? 0),
+    image_url: row.image_url ?? null,
+  };
+}
+
+function toTouristPlace(row) {
+  return {
+    id: row.id,
+    name: row.name,
+    placeId: row.place_id ?? null,
+  };
+}
+
+function shuffleList(list) {
+  const copy = Array.isArray(list) ? [...list] : [];
+  for (let i = copy.length - 1; i > 0; i -= 1) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [copy[i], copy[j]] = [copy[j], copy[i]];
+  }
+  return copy;
+}
 
 export const tripPlannerAPI = {
   // Search locations with autocomplete
   searchLocations: async (query) => {
-    // Mock implementation - replace with actual API call
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    const q = String(query ?? "").trim();
+    if (!q) return [];
 
-    return POPULAR_LOCATIONS.filter((loc) => loc.name.toLowerCase().includes(query.toLowerCase()));
+    const { data, error } = await supabase
+      .from("places")
+      .select("id, name")
+      .ilike("name", `%${q}%`)
+      .order("name", { ascending: true })
+      .limit(10);
+
+    if (error) throw error;
+    return (data || []).map(toPlace);
   },
 
   // Get popular locations
   getPopularLocations: async () => {
-    await new Promise((resolve) => setTimeout(resolve, 200));
-    return POPULAR_LOCATIONS;
+    const { data, error } = await supabase
+      .from("places")
+      .select("id, name")
+      .order("created_at", { ascending: false })
+      .limit(8);
+
+    if (error) throw error;
+    return (data || []).map(toPlace);
+  },
+
+  // Get tourist places for a starting location
+  getNearbyTouristPlaces: async (placeId, limit = 12) => {
+    const id = String(placeId ?? "").trim();
+    if (!id) return [];
+
+    const { data, error } = await supabase
+      .from("tourist_places")
+      .select("id, name, place_id")
+      .eq("place_id", id)
+      .order("name", { ascending: true })
+      .limit(limit);
+
+    if (error) throw error;
+    return (data || []).map(toTouristPlace);
+  },
+
+  // Get a randomized list of tourist places
+  getRandomTouristPlaces: async (limit = 12) => {
+    const { data, error } = await supabase
+      .from("tourist_places")
+      .select("id, name, place_id")
+      .limit(Math.max(limit * 4, 24));
+
+    if (error) throw error;
+    return shuffleList((data || []).map(toTouristPlace)).slice(0, limit);
   },
 
   // Optimize route based on starting point and destinations
   optimizeRoute: async (startingPoint, destinations) => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    // Mock optimization - in real app, use Google Maps Directions API
-    // or a route optimization service
     return {
       optimizedOrder: [startingPoint, ...destinations],
-      totalDistance: Math.random() * 500 + 100, // km
-      estimatedDuration: Math.random() * 10 + 2, // hours
+      totalDistance: 0,
+      estimatedDuration: 0,
     };
   },
 
   // Get recommendations near route
   getRecommendations: async (route) => {
-    await new Promise((resolve) => setTimeout(resolve, 600));
+    const placeIds = (Array.isArray(route) ? route : [])
+      .map((p) => p?.id)
+      .filter((id) => typeof id === "string" && id.length > 0);
+
+    if (placeIds.length === 0) {
+      return { hotels: [], restaurants: [], attractions: [] };
+    }
+
+    const [roomsResult, attractionsResult] = await Promise.all([
+      supabase
+        .from("rooms")
+        .select("id, name, type, place_id, price_per_night, amenities, image_url, place:places(name)")
+        .in("place_id", placeIds)
+        .order("created_at", { ascending: false })
+        .limit(40),
+      supabase
+        .from("tourist_places")
+        .select("id, name, type, place_id, entry_fee, image_url, place:places(name)")
+        .in("place_id", placeIds)
+        .order("created_at", { ascending: false })
+        .limit(60),
+    ]);
+
+    if (roomsResult.error) throw roomsResult.error;
+    if (attractionsResult.error) throw attractionsResult.error;
 
     return {
-      hotels: [
-        {
-          id: 1,
-          name: "Temple View Hotel",
-          location: "Near Udupi",
-          rating: 4.5,
-          price: 2500,
-          amenities: ["WiFi", "AC", "Breakfast"],
-        },
-        {
-          id: 2,
-          name: "Pilgrim's Rest",
-          location: "Dharmasthala",
-          rating: 4.2,
-          price: 1800,
-          amenities: ["WiFi", "Parking"],
-        },
-      ],
-      restaurants: [
-        {
-          id: 1,
-          name: "Woodlands Restaurant",
-          location: "Udupi",
-          cuisine: "South Indian",
-          rating: 4.3,
-          avgCost: 300,
-        },
-        {
-          id: 2,
-          name: "Mitra Samaj",
-          location: "Udupi",
-          cuisine: "Vegetarian",
-          rating: 4.6,
-          avgCost: 200,
-        },
-      ],
-      attractions: [
-        {
-          id: 1,
-          name: "Malpe Beach",
-          location: "Near Udupi",
-          type: "Beach",
-          rating: 4.4,
-          entryFee: 0,
-        },
-        {
-          id: 2,
-          name: "St. Mary's Island",
-          location: "Malpe",
-          type: "Island",
-          rating: 4.7,
-          entryFee: 50,
-        },
-      ],
+      hotels: (roomsResult.data || []).map(toHotel),
+      restaurants: [],
+      attractions: (attractionsResult.data || []).map(toAttraction),
     };
   },
 

@@ -8,12 +8,17 @@ export default function ProtectedRoute({ children, requiredRole = null }) {
   const { user, loading } = useAuth();
   const router = useRouter();
 
+  const effectiveRole = useMemo(() => {
+    if (!user) return null;
+    return user.role || user.user_metadata?.role || null;
+  }, [user]);
+
   const isAuthorized = useMemo(() => {
     if (loading) return false;
     if (!user) return false;
-    if (requiredRole && user.user_metadata?.role !== requiredRole) return false;
+    if (requiredRole && effectiveRole !== requiredRole) return false;
     return true;
-  }, [loading, user, requiredRole]);
+  }, [loading, user, requiredRole, effectiveRole]);
 
   useEffect(() => {
     if (loading) return;
@@ -23,10 +28,10 @@ export default function ProtectedRoute({ children, requiredRole = null }) {
       return;
     }
 
-    if (requiredRole && user.user_metadata?.role !== requiredRole) {
+    if (requiredRole && effectiveRole !== requiredRole) {
       router.push("/");
     }
-  }, [user, loading, requiredRole, router]);
+  }, [user, loading, requiredRole, router, effectiveRole]);
 
   if (loading || !isAuthorized) {
     return (

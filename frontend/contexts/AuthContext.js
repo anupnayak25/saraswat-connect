@@ -12,12 +12,14 @@ export const AuthProvider = ({ children }) => {
   const fetchUserWithRole = async (authUser) => {
     if (!authUser) return null;
 
+    const fallbackRole = authUser.user_metadata?.role || "user";
+
     // Fetch user data including role from users table
     const { data, error } = await supabase.from("users").select("*").eq("id", authUser.id).maybeSingle();
 
     if (error) {
       console.error("Error fetching user role:", error);
-      return { ...authUser, role: "user" }; // Default to user if error
+      return { ...authUser, role: fallbackRole };
     }
 
     // If user doesn't exist in users table, create it
@@ -38,7 +40,7 @@ export const AuthProvider = ({ children }) => {
 
       if (insertError) {
         console.error("Error creating user record:", insertError);
-        return { ...authUser, role: "user" }; // Default to user if error
+        return { ...authUser, role: fallbackRole };
       }
 
       return { ...authUser, ...newUser };
@@ -97,23 +99,6 @@ export const AuthProvider = ({ children }) => {
         data: metadata,
       },
     });
-
-    // Create user record in users table with role
-    if (data?.user && !error) {
-      const { error: insertError } = await supabase.from("users").insert([
-        {
-          id: data.user.id,
-          email: data.user.email,
-          full_name: metadata.full_name || "",
-          phone: metadata.phone || "",
-          role: metadata.role || "user", // Default role is 'user'
-        },
-      ]);
-
-      if (insertError) {
-        console.error("Error creating user record:", insertError);
-      }
-    }
 
     return { data, error };
   };

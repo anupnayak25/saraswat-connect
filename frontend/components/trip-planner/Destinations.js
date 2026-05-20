@@ -1,8 +1,13 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useTripPlanner } from "@/contexts/TripPlannerContext";
 import { tripPlannerAPI } from "@/lib/tripPlannerAPI";
+
+const SUGGESTION_LIMITS = {
+  nearby: 6,
+  random: 6,
+};
 
 export default function Step2Destinations() {
   const { tripData, updateTripData, nextStep, prevStep } = useTripPlanner();
@@ -10,6 +15,9 @@ export default function Step2Destinations() {
   const [searchResults, setSearchResults] = useState([]);
   const [loading, setLoading] = useState(false);
   const [optimizing, setOptimizing] = useState(false);
+  const [nearbySuggestions, setNearbySuggestions] = useState([]);
+  const [randomSuggestions, setRandomSuggestions] = useState([]);
+  const [suggestionsLoading, setSuggestionsLoading] = useState(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -42,18 +50,56 @@ export default function Step2Destinations() {
     };
   }, [searchQuery, tripData.startingPoint?.id, tripData.destinations]);
 
+  const refreshSuggestions = useCallback(
+    async (destinationsOverride = tripData.destinations) => {
+      const startingPointId = tripData.startingPoint?.id;
+      if (!startingPointId) {
+        setNearbySuggestions([]);
+        setRandomSuggestions([]);
+        return;
+      }
+
+      setSuggestionsLoading(true);
+      try {
+        const [nearby, random] = await Promise.all([
+          tripPlannerAPI.getNearbyTouristPlaces(startingPointId, SUGGESTION_LIMITS.nearby * 3),
+          tripPlannerAPI.getRandomTouristPlaces(SUGGESTION_LIMITS.random * 3),
+        ]);
+
+        const selectedIds = new Set(destinationsOverride.map((dest) => dest.id));
+        selectedIds.add(startingPointId);
+
+        const filterSuggestions = (items) => items.filter((item) => item?.id && !selectedIds.has(item.id));
+
+        setNearbySuggestions(filterSuggestions(nearby).slice(0, SUGGESTION_LIMITS.nearby));
+        setRandomSuggestions(filterSuggestions(random).slice(0, SUGGESTION_LIMITS.random));
+      } finally {
+        setSuggestionsLoading(false);
+      }
+    },
+    [tripData.destinations, tripData.startingPoint?.id],
+  );
+
+  useEffect(() => {
+    refreshSuggestions();
+  }, [refreshSuggestions]);
+
   const addDestination = (location) => {
+    const nextDestinations = [...tripData.destinations, location];
     updateTripData({
-      destinations: [...tripData.destinations, location],
+      destinations: nextDestinations,
     });
     setSearchQuery("");
     setSearchResults([]);
+    refreshSuggestions(nextDestinations);
   };
 
   const removeDestination = (locationId) => {
+    const nextDestinations = tripData.destinations.filter((dest) => dest.id !== locationId);
     updateTripData({
-      destinations: tripData.destinations.filter((dest) => dest.id !== locationId),
+      destinations: nextDestinations,
     });
+    refreshSuggestions(nextDestinations);
   };
 
   const handleSubmit = async () => {
@@ -78,6 +124,50 @@ export default function Step2Destinations() {
         <h2 className="text-3xl font-bold text-stone-800 mb-2">Where do you want to go?</h2>
         <p className="text-stone-600">Add multiple destinations to your trip</p>
       </div>
+
+      {tripData.startingPoint?.id && (
+        <div className="mb-6">
+          <div className="mb-4">
+            <h3 className="text-sm font-semibold text-stone-700 mb-2">Nearby tourist places</h3>
+            {suggestionsLoading && nearbySuggestions.length === 0 ? (
+              <div className="text-sm text-stone-500">Loading suggestions...</div>
+            ) : nearbySuggestions.length === 0 ? (
+              <div className="text-sm text-stone-500">No nearby tourist places found yet.</div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {nearbySuggestions.map((place) => (
+                  <button
+                    key={place.id}
+                    onClick={() => addDestination(place)}
+                    className="px-3 py-1.5 rounded-full border border-teal-200 text-teal-700 bg-teal-50 hover:bg-teal-100 transition">
+                    {place.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          <div>
+            <h3 className="text-sm font-semibold text-stone-700 mb-2">Explore more places</h3>
+            {suggestionsLoading && randomSuggestions.length === 0 ? (
+              <div className="text-sm text-stone-500">Loading suggestions...</div>
+            ) : randomSuggestions.length === 0 ? (
+              <div className="text-sm text-stone-500">No extra places to show right now.</div>
+            ) : (
+              <div className="flex flex-wrap gap-2">
+                {randomSuggestions.map((place) => (
+                  <button
+                    key={place.id}
+                    onClick={() => addDestination(place)}
+                    className="px-3 py-1.5 rounded-full border border-orange-200 text-orange-700 bg-orange-50 hover:bg-orange-100 transition">
+                    {place.name}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Search Bar */}
       <div className="mb-6">

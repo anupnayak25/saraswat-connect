@@ -15,8 +15,8 @@ export default function AboutPage() {
         <div className="bg-white rounded-lg shadow-md p-8 mb-8">
           <h2 className="text-2xl font-bold text-stone-800 mb-4">Our Story</h2>
           <p className="text-stone-700 leading-relaxed mb-4">
-            Saraswath Connect is your trusted platform for temple room booking, pooja reservations, vehicle rentals and
-            spiritual tour packages. We provide a seamless, expert experience, and luxury from for temple.
+            Saraswath Connect is your trusted platform for temple room booking, vehicle rentals and spiritual tour
+            packages. We provide a seamless, expert experience, and luxury from for temple.
           </p>
           <p className="text-stone-700 leading-relaxed">
             Founded with the vision of making spiritual journeys more accessible and convenient, we have been serving
@@ -59,13 +59,13 @@ export default function AboutPage() {
                 <p className="text-stone-600">Safe and reliable transportation</p>
               </div>
             </div>
-            <div className="flex items-start space-x-4">
+            {/* <div className="flex items-start space-x-4">
               <div className="text-3xl">🪔</div>
               <div>
                 <h3 className="font-bold text-stone-800 mb-1">Pooja Services</h3>
                 <p className="text-stone-600">Traditional rituals and ceremonies</p>
               </div>
-            </div>
+            </div> */}
             <div className="flex items-start space-x-4">
               <div className="text-3xl">📍</div>
               <div>

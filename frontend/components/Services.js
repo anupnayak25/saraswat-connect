@@ -1,9 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import room from '@/assets/room.png';
-import tour_package from '@/assets/package.png';
-import pooja from '@/assets/pooja.png';
-import vehicel from '@/assets/vehicel.png';
+import room from "@/assets/room.png";
+import tour_package from "@/assets/package.png";
+// import pooja from "@/assets/pooja.png";
+import vehicel from "@/assets/vehicel.png";
 
 const services = [
   {
@@ -24,15 +24,15 @@ const services = [
     buttonText: "Book Now",
     link: "/vehicles",
   },
-  {
-    id: 3,
-    title: "Pooja Booking",
-    description: "Reserve rituals and poojas",
-    icon: "🪔",
-    image: pooja,
-    buttonText: "Book Now",
-    link: "/poojas",
-  },
+  // {
+  //   id: 3,
+  //   title: "Pooja Booking",
+  //   description: "Reserve rituals and poojas",
+  //   icon: "🪔",
+  //   image: pooja,
+  //   buttonText: "Book Now",
+  //   link: "/poojas",
+  // },
   {
     id: 4,
     title: "Tour Packages",
@@ -50,27 +50,29 @@ export default function Services() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Title */}
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-stone-800 mb-4">
-           Our Services
-           </h2>
+          <h2 className="text-3xl md:text-4xl font-bold text-stone-800 mb-4">Our Services</h2>
         </div>
 
         {/* Service Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 justify-items-center">
           {services.map((service) => (
             <div
               key={service.id}
-              className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-xl transition-shadow border-4 border-teal-800">
-             
-
+              className="bg-white space-y-2 rounded-lg shadow-lg hover:shadow-xl transition-shadow border-4 border-teal-800 w-full max-w-xs overflow-hidden">
               {/* Title */}
               <div className="text-center py-3">
                 <h3 className="text-xl font-bold text-stone-800">{service.title}</h3>
               </div>
 
               {/* Image placeholder */}
-              <div className="relative h-40 flex items-center justify-center">
-              <Image src={service.image} alt="service image"/>
+              <div className="relative h-48 w-full overflow-hidden bg-stone-100">
+                <Image
+                  src={service.image}
+                  alt={service.title}
+                  fill
+                  sizes="(max-width: 768px) 100vw, 320px"
+                  className="object-cover"
+                />
               </div>
 
               {/* Description */}

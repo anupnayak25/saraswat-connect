@@ -16,17 +16,17 @@ function StepIndicator() {
   const steps = [
     { number: 1, title: "Starting Point", completed: !!tripData.startingPoint },
     { number: 2, title: "Destinations", completed: tripData.destinations.length > 0 },
-    { number: 3, title: "Route & Places", completed: tripData.optimizedRoute.length > 0 },
+    { number: 3, title: "Route Plan", completed: tripData.optimizedRoute.length > 0 },
     { number: 4, title: "Vehicle", completed: !!tripData.vehicleType && !!tripData.travelAgency },
     { number: 5, title: "Review", completed: false },
   ];
 
   return (
     <div className="mb-12">
-      <div className="flex items-center justify-between max-w-4xl mx-auto">
+      <div className="flex items-center justify-between max-w-4xl mx-auto translate-x-15">
         {steps.map((step, index) => (
           <div key={step.number} className="flex items-center flex-1">
-            <div className="flex flex-col items-center flex-1">
+            <div className="flex flex-col items-center ">
               <button
                 onClick={() => {
                   // Allow going back to previous steps
@@ -45,7 +45,7 @@ function StepIndicator() {
                 {currentStep > step.number ? "✓" : step.number}
               </button>
               <span
-                className={`mt-2 text-xs font-medium ${
+                className={`mt-2 text-xs font-medium w-20 text-center ${
                   currentStep >= step.number ? "text-stone-800" : "text-stone-500"
                 }`}>
                 {step.title}
@@ -53,7 +53,7 @@ function StepIndicator() {
             </div>
             {index < steps.length - 1 && (
               <div
-                className={`h-1 flex-1 mx-2 transition ${currentStep > step.number ? "bg-green-500" : "bg-stone-300"}`}
+                className={`h-1 flex-1 mx-2 transition -translate-y-2 ${currentStep > step.number ? "bg-green-500" : "bg-stone-300"}`}
               />
             )}
           </div>

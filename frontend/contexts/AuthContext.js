@@ -51,15 +51,22 @@ export const AuthProvider = ({ children }) => {
 
   useEffect(() => {
     // Check active session
-    supabase.auth.getSession().then(async ({ data: { session } }) => {
-      if (session?.user) {
-        const userWithRole = await fetchUserWithRole(session.user);
-        setUser(userWithRole);
-      } else {
+    (async () => {
+      try {
+        const { data: { session } = {} } = await supabase.auth.getSession();
+        if (session?.user) {
+          const userWithRole = await fetchUserWithRole(session.user);
+          setUser(userWithRole);
+        } else {
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("Error loading session:", error);
         setUser(null);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
-    });
+    })();
 
     // Listen for auth changes
     const {
@@ -71,6 +78,7 @@ export const AuthProvider = ({ children }) => {
       } else {
         setUser(null);
       }
+      setLoading(false);
     });
 
     return () => subscription.unsubscribe();

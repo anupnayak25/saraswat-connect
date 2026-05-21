@@ -11,12 +11,14 @@ export const TripPlannerProvider = ({ children }) => {
     destinations: [],
     optimizedRoute: [],
     selectedHotels: [],
+    selectedStays: [],
     selectedRestaurants: [],
     selectedAttractions: [],
     vehicleType: null,
     seats: 1,
     travelAgency: null,
     totalCost: 0,
+    routeGeometry: null,
   });
 
   const updateTripData = (data) => {
@@ -38,12 +40,14 @@ export const TripPlannerProvider = ({ children }) => {
       destinations: [],
       optimizedRoute: [],
       selectedHotels: [],
+      selectedStays: [],
       selectedRestaurants: [],
       selectedAttractions: [],
       vehicleType: null,
       seats: 1,
       travelAgency: null,
       totalCost: 0,
+      routeGeometry: null,
     });
   };
 

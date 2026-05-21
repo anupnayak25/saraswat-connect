@@ -61,8 +61,26 @@ export default function Step2Destinations() {
 
       setSuggestionsLoading(true);
       try {
+        const touristPlaceIds = destinationsOverride
+          .map((dest) => dest?.placeId)
+          .filter((id) => typeof id === "string" && id.length > 0);
+
+        const uniqueTouristPlaceIds = [...new Set(touristPlaceIds)];
+        let expandedPlaceIds = [];
+
+        if (uniqueTouristPlaceIds.length > 0) {
+          const places = await tripPlannerAPI.getPlacesByIds(uniqueTouristPlaceIds);
+          const nearbyPlaceIds = places
+            .flatMap((place) => (Array.isArray(place?.nearby_places) ? place.nearby_places : []))
+            .filter((id) => typeof id === "string" && id.length > 0);
+
+          expandedPlaceIds = [...new Set([startingPointId, ...nearbyPlaceIds, ...uniqueTouristPlaceIds])];
+        } else {
+          expandedPlaceIds = [startingPointId];
+        }
+
         const [nearby, random] = await Promise.all([
-          tripPlannerAPI.getNearbyTouristPlaces(startingPointId, SUGGESTION_LIMITS.nearby * 3),
+          tripPlannerAPI.getTouristPlacesByPlaceIds(expandedPlaceIds, SUGGESTION_LIMITS.nearby * 4),
           tripPlannerAPI.getRandomTouristPlaces(SUGGESTION_LIMITS.random * 3),
         ]);
 
@@ -110,6 +128,7 @@ export default function Step2Destinations() {
 
     updateTripData({
       optimizedRoute: routeData.optimizedOrder,
+      routeGeometry: routeData.routeGeometry,
       totalDistance: routeData.totalDistance,
       estimatedDuration: routeData.estimatedDuration,
     });

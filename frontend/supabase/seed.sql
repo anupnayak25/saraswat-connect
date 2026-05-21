@@ -26,6 +26,13 @@ INSERT INTO rooms (name, type, place_id, contact, price_per_night, availability_
 ('River View Room', 'AC Deluxe', '44444444-4444-4444-4444-444444444444', '+91-9876543223', 1800.00, 'available', 3, '["WiFi", "TV", "River View", "Balcony"]', '/assets/river-view.jpg'),
 ('Ganga View Suite', 'Suite', '55555555-5555-5555-5555-555555555555', '+91-9876543224', 2800.00, 'available', 4, '["WiFi", "TV", "AC", "Ganga View", "Prayer Room"]', '/assets/ganga-suite.jpg');
 
+-- Sample data for hotels
+INSERT INTO hotels (name, place_id, contact, price_per_night, rating, amenities, image_url) VALUES
+('Kashi Heritage Hotel', '11111111-1111-1111-1111-111111111111', '+91-9876543330', 3200.00, 4.4, '["WiFi", "AC", "Breakfast", "River View"]', '/assets/hotel-kashi.jpg'),
+('Ayodhya Palace', '22222222-2222-2222-2222-222222222222', '+91-9876543331', 2800.00, 4.2, '["WiFi", "AC", "Restaurant"]', '/assets/hotel-ayodhya.jpg'),
+('Mathura Residency', '33333333-3333-3333-3333-333333333333', '+91-9876543332', 2400.00, 4.1, '["WiFi", "Parking", "Breakfast"]', '/assets/hotel-mathura.jpg'),
+('Prayagraj Riverside', '44444444-4444-4444-4444-444444444444', '+91-9876543333', 2600.00, 4.3, '["WiFi", "AC", "Ghat View"]', '/assets/hotel-prayagraj.jpg');
+
 -- Sample data for tourist places
 INSERT INTO tourist_places (name, type, place_id, open_hours, entry_fee, description, image_url) VALUES
 ('Kashi Vishwanath Temple', 'temple', '11111111-1111-1111-1111-111111111111', '3:00 AM - 11:00 PM', 0, 'One of the twelve Jyotirlingas, dedicated to Lord Shiva', '/assets/kashi-vishwanath.jpg'),

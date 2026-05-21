@@ -31,14 +31,14 @@ export default function Step4VehicleSelection() {
     };
   }, []);
   const selectVehicle = (vehicle) => {
-    updateTripData({ vehicleType: vehicle, seats: 1 });
+    updateTripData({ vehicleType: vehicle });
   };
 
   const selectAgency = (agency) => {
     updateTripData({ travelAgency: agency });
   };
 
-  const canProceed = tripData.vehicleType && tripData.travelAgency && tripData.seats > 0;
+  const canProceed = tripData.vehicleType && tripData.travelAgency;
 
   // Filter agencies based on selected vehicle
   const availableAgencies = agencies.filter(
@@ -91,33 +91,6 @@ export default function Step4VehicleSelection() {
             </div>
           </div>
 
-          {/* Seat Selection */}
-          {tripData.vehicleType && (
-            <div className="mb-8 p-6 bg-stone-50 rounded-lg">
-              <label className="block text-lg font-bold text-stone-800 mb-3">Number of Seats Required</label>
-              <div className="flex items-center space-x-4">
-                <button
-                  onClick={() => updateTripData({ seats: Math.max(1, tripData.seats - 1) })}
-                  className="w-12 h-12 bg-white border-2 border-stone-300 rounded-lg font-bold text-stone-700 hover:border-teal-500 transition">
-                  −
-                </button>
-                <div className="flex-1 text-center">
-                  <p className="text-3xl font-bold text-stone-800">{tripData.seats}</p>
-                  <p className="text-sm text-stone-600">Max: {tripData.vehicleType.seats} seats</p>
-                </div>
-                <button
-                  onClick={() =>
-                    updateTripData({
-                      seats: Math.min(tripData.vehicleType.seats, tripData.seats + 1),
-                    })
-                  }
-                  className="w-12 h-12 bg-white border-2 border-stone-300 rounded-lg font-bold text-stone-700 hover:border-teal-500 transition">
-                  +
-                </button>
-              </div>
-            </div>
-          )}
-
           {/* Travel Agency Selection */}
           {tripData.vehicleType && (
             <div className="mb-8">
@@ -154,7 +127,7 @@ export default function Step4VehicleSelection() {
           {tripData.vehicleType && tripData.travelAgency && (
             <div className="mb-8 p-6 bg-linear-to-r from-green-50 to-emerald-50 rounded-lg border border-green-200">
               <h3 className="text-lg font-bold text-stone-800 mb-3">Estimated Cost</h3>
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
                 <div>
                   <p className="text-sm text-stone-600">Vehicle Cost</p>
                   <p className="text-xl font-bold text-stone-800">
@@ -168,6 +141,12 @@ export default function Step4VehicleSelection() {
                   </p>
                 </div>
                 <div>
+                  <p className="text-sm text-stone-600">Stays</p>
+                  <p className="text-xl font-bold text-stone-800">
+                    ₹{tripData.selectedStays.reduce((sum, s) => sum + s.price, 0).toFixed(0)}
+                  </p>
+                </div>
+                <div>
                   <p className="text-sm text-stone-600">Service Charge</p>
                   <p className="text-xl font-bold text-stone-800">₹{tripData.travelAgency.surcharge}</p>
                 </div>
@@ -178,6 +157,7 @@ export default function Step4VehicleSelection() {
                     {(
                       tripData.totalDistance * tripData.vehicleType.pricePerKm +
                       tripData.selectedHotels.reduce((sum, h) => sum + h.price, 0) +
+                      tripData.selectedStays.reduce((sum, s) => sum + s.price, 0) +
                       tripData.travelAgency.surcharge
                     ).toFixed(0)}
                   </p>

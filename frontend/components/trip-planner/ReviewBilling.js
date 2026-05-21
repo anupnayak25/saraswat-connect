@@ -12,6 +12,20 @@ export default function Step5ReviewBilling() {
   const [submitting, setSubmitting] = useState(false);
   const router = useRouter();
 
+  const touristPlaceIds = new Set(
+    (Array.isArray(tripData.optimizedRoute) ? tripData.optimizedRoute : [])
+      .filter((location) => location?.placeId)
+      .map((location) => location.placeId),
+  );
+
+  const filteredRoute = (Array.isArray(tripData.optimizedRoute) ? tripData.optimizedRoute : []).filter(
+    (location) => {
+      if (!location?.id) return false;
+      if (location.placeId) return true;
+      return !touristPlaceIds.has(location.id);
+    },
+  );
+
   useEffect(() => {
     let cancelled = false;
 
@@ -65,12 +79,12 @@ export default function Step5ReviewBilling() {
             <div className="mb-6">
               <h4 className="font-semibold text-stone-700 mb-2">Route</h4>
               <div className="flex items-center space-x-2 overflow-x-auto">
-                {tripData.optimizedRoute.map((location, index) => (
+                {filteredRoute.map((location, index) => (
                   <div key={location.id} className="flex items-center">
                     <div className="px-3 py-1 bg-teal-100 text-teal-800 rounded font-medium whitespace-nowrap">
                       {location.name}
                     </div>
-                    {index < tripData.optimizedRoute.length - 1 && <span className="mx-2 text-teal-600">→</span>}
+                    {index < filteredRoute.length - 1 && <span className="mx-2 text-teal-600">→</span>}
                   </div>
                 ))}
               </div>
@@ -98,15 +112,19 @@ export default function Step5ReviewBilling() {
               </div>
             )}
 
-            {/* Restaurants */}
-            {tripData.selectedRestaurants.length > 0 && (
+            {/* Stays */}
+            {tripData.selectedStays.length > 0 && (
               <div className="mb-6">
-                <h4 className="font-semibold text-stone-700 mb-2">Selected Restaurants</h4>
-                <div className="flex flex-wrap gap-2">
-                  {tripData.selectedRestaurants.map((restaurant) => (
-                    <span key={restaurant.id} className="px-3 py-1 bg-teal-100 text-teal-800 rounded text-sm">
-                      {restaurant.name}
-                    </span>
+                <h4 className="font-semibold text-stone-700 mb-2">Selected Stays</h4>
+                <div className="space-y-2">
+                  {tripData.selectedStays.map((stay) => (
+                    <div key={stay.id} className="flex justify-between items-center p-3 bg-stone-50 rounded">
+                      <div>
+                        <p className="font-medium text-stone-800">{stay.name}</p>
+                        <p className="text-sm text-stone-600">{stay.location}</p>
+                      </div>
+                      <p className="font-semibold text-stone-800">₹{stay.price}</p>
+                    </div>
                   ))}
                 </div>
               </div>
@@ -157,6 +175,10 @@ export default function Step5ReviewBilling() {
               <div className="flex justify-between items-center py-2 border-b">
                 <span className="text-stone-700">Hotels ({tripData.selectedHotels.length} nights)</span>
                 <span className="font-semibold text-stone-800">₹{costBreakdown.hotelCost.toFixed(0)}</span>
+              </div>
+              <div className="flex justify-between items-center py-2 border-b">
+                <span className="text-stone-700">Stays ({tripData.selectedStays.length} nights)</span>
+                <span className="font-semibold text-stone-800">₹{costBreakdown.stayCost.toFixed(0)}</span>
               </div>
               <div className="flex justify-between items-center py-2 border-b">
                 <span className="text-stone-700">Service Charge</span>

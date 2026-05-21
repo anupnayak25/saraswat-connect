@@ -38,6 +38,20 @@ CREATE TABLE rooms (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Hotels table - dedicated hotel listings at specific places
+CREATE TABLE hotels (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  name VARCHAR(255) NOT NULL,
+  place_id UUID REFERENCES places(id) ON DELETE CASCADE,
+  contact VARCHAR(255),
+  price_per_night DECIMAL(10, 2) NOT NULL,
+  rating DECIMAL(3, 2),
+  amenities JSONB,
+  image_url TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Tourist Places table - attractions at locations
 CREATE TABLE tourist_places (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -197,6 +211,7 @@ CREATE TABLE contact_messages (
 -- Enable Row Level Security
 ALTER TABLE places ENABLE ROW LEVEL SECURITY;
 ALTER TABLE rooms ENABLE ROW LEVEL SECURITY;
+ALTER TABLE hotels ENABLE ROW LEVEL SECURITY;
 ALTER TABLE tourist_places ENABLE ROW LEVEL SECURITY;
 ALTER TABLE travel_agents ENABLE ROW LEVEL SECURITY;
 ALTER TABLE vehicles ENABLE ROW LEVEL SECURITY;
@@ -216,6 +231,7 @@ ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
 -- Public read access for places and related entities
 CREATE POLICY "Public read access for places" ON places FOR SELECT USING (true);
 CREATE POLICY "Public read access for rooms" ON rooms FOR SELECT USING (true);
+CREATE POLICY "Public read access for hotels" ON hotels FOR SELECT USING (true);
 CREATE POLICY "Public read access for tourist places" ON tourist_places FOR SELECT USING (true);
 CREATE POLICY "Public read access for travel agents" ON travel_agents FOR SELECT USING (true);
 CREATE POLICY "Public read access for vehicles" ON vehicles FOR SELECT USING (true);
@@ -252,6 +268,8 @@ CREATE POLICY "Anyone can create contact messages" ON contact_messages FOR INSER
 -- Create indexes for better performance
 CREATE INDEX idx_rooms_place_id ON rooms(place_id);
 CREATE INDEX idx_rooms_availability ON rooms(availability_status);
+
+CREATE INDEX idx_hotels_place_id ON hotels(place_id);
 
 CREATE INDEX idx_tourist_places_place_id ON tourist_places(place_id);
 CREATE INDEX idx_tourist_places_type ON tourist_places(type);

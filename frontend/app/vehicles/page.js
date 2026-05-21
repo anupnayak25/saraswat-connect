@@ -1,48 +1,55 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-
-const vehicleOptions = [
-  {
-    id: 1,
-    name: "Sedan",
-    price: 12,
-    image: "/assets/sedan.jpg",
-    seats: 4,
-    type: "Car",
-  },
-  {
-    id: 2,
-    name: "Mini Bus",
-    price: 20,
-    image: "/assets/mini-bus.jpg",
-    seats: 18,
-    type: "Bus",
-  },
-  {
-    id: 3,
-    name: "SUV",
-    price: 18,
-    image: "/assets/suv.jpg",
-    seats: 7,
-    type: "Car",
-  },
-  {
-    id: 4,
-    name: "Luxury Bus",
-    price: 35,
-    image: "/assets/luxury-bus.jpg",
-    seats: 40,
-    type: "Bus",
-  },
-];
+import { supabase } from "@/lib/supabase";
 
 export default function VehicleBooking() {
   const [selectedDate, setSelectedDate] = useState("");
   const [pickupLocation, setPickupLocation] = useState("");
   const [dropLocation, setDropLocation] = useState("");
+  const [vehicles, setVehicles] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    setLoading(true);
+    setLoadError(false);
+
+    (async () => {
+      try {
+        const { data, error } = await supabase
+          .from("vehicles")
+          .select("id, type, capacity, price_per_km, image_url, availability_status")
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+        if (cancelled) return;
+
+        const normalized = (data || []).map((vehicle) => ({
+          id: vehicle.id,
+          name: vehicle.type,
+          price: Number(vehicle.price_per_km ?? 0),
+          image: vehicle.image_url ?? null,
+          capacity: vehicle.capacity ?? 0,
+          availability: vehicle.availability_status ?? "available",
+        }));
+
+        setVehicles(normalized);
+      } catch {
+        if (!cancelled) setLoadError(true);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -115,33 +122,51 @@ export default function VehicleBooking() {
           <div className="lg:col-span-2">
             <h2 className="text-2xl font-bold text-stone-800 mb-6">Vehicle Options</h2>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {vehicleOptions.map((vehicle) => (
-                <div
-                  key={vehicle.id}
-                  className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
-                  {/* Vehicle Image */}
-                  <div className="h-48 bg-linear-to-br from-teal-200 to-teal-400 flex items-center justify-center">
-                    <span className="text-stone-500">Vehicle Image</span>
-                  </div>
+            {loading ? (
+              <div className="text-center py-12">
+                <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-teal-600 mx-auto"></div>
+              </div>
+            ) : loadError ? (
+              <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                Unable to load vehicles right now. Please try again.
+              </div>
+            ) : vehicles.length === 0 ? (
+              <div className="rounded-lg border border-stone-200 bg-white p-4 text-sm text-stone-600">
+                No vehicles available at the moment.
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                {vehicles.map((vehicle) => (
+                  <div
+                    key={vehicle.id}
+                    className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
+                    {/* Vehicle Image */}
+                    <div className="h-48 bg-linear-to-br from-teal-200 to-teal-400 flex items-center justify-center">
+                      {vehicle.image ? (
+                        <img src={vehicle.image} alt={vehicle.name} className="h-full w-full object-cover" />
+                      ) : (
+                        <span className="text-stone-500">Vehicle Image</span>
+                      )}
+                    </div>
 
-                  {/* Vehicle Details */}
-                  <div className="p-4">
-                    <h3 className="text-xl font-bold text-stone-800 mb-2">{vehicle.name}</h3>
-                    <div className="flex items-center justify-between mb-4">
-                      <span className="text-2xl font-bold text-teal-600">₹ {vehicle.price}</span>
-                      <span className="text-sm text-stone-600">per Km</span>
+                    {/* Vehicle Details */}
+                    <div className="p-4">
+                      <h3 className="text-xl font-bold text-stone-800 mb-2">{vehicle.name}</h3>
+                      <div className="flex items-center justify-between mb-4">
+                        <span className="text-2xl font-bold text-teal-600">₹ {vehicle.price}</span>
+                        <span className="text-sm text-stone-600">per Km</span>
+                      </div>
+                      <div className="flex items-center text-sm text-stone-600 mb-4">
+                        <span>{vehicle.capacity} Capacity</span>
+                      </div>
+                      <button className="w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-800 transition">
+                        Book Now
+                      </button>
                     </div>
-                    <div className="flex items-center text-sm text-stone-600 mb-4">
-                      <span>{vehicle.capacity} Capacity</span>
-                    </div>
-                    <button className="w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-800 transition">
-                      Book Now
-                    </button>
                   </div>
-                </div>
-              ))}
-            </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </main>

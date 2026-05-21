@@ -1,17 +1,44 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/components/ToastProvider";
 
 export default function VehicleBooking() {
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+  const { alert } = useToast();
   const [selectedDate, setSelectedDate] = useState("");
   const [pickupLocation, setPickupLocation] = useState("");
   const [dropLocation, setDropLocation] = useState("");
+  const [distanceKm, setDistanceKm] = useState("");
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
+  const [bookingSubmitting, setBookingSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = sessionStorage.getItem("postAuthRedirect");
+    if (!saved) return;
+
+    try {
+      const parsed = JSON.parse(saved);
+      if (parsed?.path !== "/vehicles") return;
+      const state = parsed.state || {};
+      setSelectedDate(state.selectedDate || "");
+      setPickupLocation(state.pickupLocation || "");
+      setDropLocation(state.dropLocation || "");
+      setDistanceKm(state.distanceKm || "");
+      sessionStorage.removeItem("postAuthRedirect");
+    } catch {
+      sessionStorage.removeItem("postAuthRedirect");
+    }
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -50,6 +77,70 @@ export default function VehicleBooking() {
       cancelled = true;
     };
   }, []);
+
+  const handleBookVehicle = async (vehicle) => {
+    if (authLoading) return;
+
+    if (!user) {
+      if (typeof window !== "undefined") {
+        const redirectPayload = {
+          path: "/vehicles",
+          state: {
+            selectedDate,
+            pickupLocation,
+            dropLocation,
+            distanceKm,
+          },
+        };
+        sessionStorage.setItem("postAuthRedirect", JSON.stringify(redirectPayload));
+      }
+      router.push(`/login?redirect=${encodeURIComponent("/vehicles")}`);
+      return;
+    }
+
+    if (!selectedDate) {
+      await alert("Please select a travel date.", { variant: "warning" });
+      return;
+    }
+
+    if (!pickupLocation || !dropLocation) {
+      await alert("Please select pickup and drop locations.", { variant: "warning" });
+      return;
+    }
+
+    const parsedDistance = Number(distanceKm);
+    if (!Number.isFinite(parsedDistance) || parsedDistance <= 0) {
+      await alert("Please enter a valid distance in km.", { variant: "warning" });
+      return;
+    }
+
+    const pricePerKm = Number(vehicle.price ?? 0);
+    const totalPrice = Number.isFinite(pricePerKm) ? parsedDistance * pricePerKm : 0;
+
+    setBookingSubmitting(true);
+    try {
+      const { error: insertError } = await supabase.from("vehicle_bookings").insert([
+        {
+          vehicle_id: vehicle.id,
+          user_id: user.id,
+          travel_date: selectedDate,
+          distance_km: parsedDistance,
+          pickup_location: pickupLocation,
+          drop_location: dropLocation,
+          total_price: totalPrice,
+          booking_status: "pending",
+        },
+      ]);
+
+      if (insertError) throw insertError;
+      await alert("Vehicle booking created. Status: pending", { variant: "success" });
+      router.push("/bookings");
+    } catch (e) {
+      await alert(e?.message || "Failed to create vehicle booking", { variant: "error" });
+    } finally {
+      setBookingSubmitting(false);
+    }
+  };
 
   return (
     <div className="min-h-screen bg-stone-50">
@@ -110,6 +201,19 @@ export default function VehicleBooking() {
                   </select>
                 </div>
 
+                {/* Distance */}
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">Distance (km)</label>
+                  <input
+                    type="number"
+                    min="1"
+                    value={distanceKm}
+                    onChange={(e) => setDistanceKm(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                    placeholder="e.g. 120"
+                  />
+                </div>
+
                 {/* Search Button */}
                 <button className="w-full bg-teal-600 text-white py-3 rounded-lg font-semibold hover:bg-teal-800 transition">
                   Search Vehicles
@@ -159,7 +263,11 @@ export default function VehicleBooking() {
                       <div className="flex items-center text-sm text-stone-600 mb-4">
                         <span>{vehicle.capacity} Capacity</span>
                       </div>
-                      <button className="w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-800 transition">
+                      <button
+                        type="button"
+                        onClick={() => handleBookVehicle(vehicle)}
+                        disabled={bookingSubmitting}
+                        className="w-full bg-teal-600 text-white py-2 rounded-lg font-semibold hover:bg-teal-800 transition disabled:opacity-60">
                         Book Now
                       </button>
                     </div>

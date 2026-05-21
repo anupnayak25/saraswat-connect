@@ -13,7 +13,21 @@ export default function Login() {
   const { signIn } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect") || "/";
+  const redirectTo = searchParams.get("redirect") || searchParams.get("next") || "/";
+
+  const getSessionRedirect = () => {
+    if (typeof window === "undefined") return null;
+    const saved = sessionStorage.getItem("postAuthRedirect");
+    if (!saved) return null;
+
+    try {
+      const parsed = JSON.parse(saved);
+      if (!parsed?.path) return null;
+      return `${parsed.path}${parsed.search || ""}`;
+    } catch {
+      return null;
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -29,7 +43,11 @@ export default function Login() {
       // Redirect based on role from users table
       const role = data.user?.role;
 
-      if (redirectTo && redirectTo !== "/") {
+      const sessionRedirect = getSessionRedirect();
+      if (sessionRedirect) {
+        sessionStorage.removeItem("postAuthRedirect");
+        router.push(sessionRedirect);
+      } else if (redirectTo && redirectTo !== "/") {
         router.push(redirectTo);
       } else if (role === "admin") {
         router.push("/saraswat-admin");
@@ -103,7 +121,9 @@ export default function Login() {
           <div className="text-sm text-center space-y-2">
             <div>
               Don&apos;t have an account?{" "}
-              <Link href="/signup" className="font-medium text-orange-600 hover:text-orange-500">
+              <Link
+                href={`/signup?redirect=${encodeURIComponent(redirectTo)}`}
+                className="font-medium text-orange-600 hover:text-orange-500">
                 Sign up
               </Link>
             </div>

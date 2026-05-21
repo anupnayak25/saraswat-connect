@@ -18,7 +18,21 @@ export default function Signup() {
   const { signUp } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect") || "/";
+  const redirectTo = searchParams.get("redirect") || searchParams.get("next") || "/";
+
+  const getSessionRedirect = () => {
+    if (typeof window === "undefined") return null;
+    const saved = sessionStorage.getItem("postAuthRedirect");
+    if (!saved) return null;
+
+    try {
+      const parsed = JSON.parse(saved);
+      if (!parsed?.path) return null;
+      return `${parsed.path}${parsed.search || ""}`;
+    } catch {
+      return null;
+    }
+  };
 
   const handleChange = (e) => {
     setFormData({
@@ -54,7 +68,13 @@ export default function Signup() {
       setError(error.message);
       setLoading(false);
     } else {
-      router.push(redirectTo);
+      const sessionRedirect = getSessionRedirect();
+      if (sessionRedirect) {
+        sessionStorage.removeItem("postAuthRedirect");
+        router.push(sessionRedirect);
+      } else {
+        router.push(redirectTo);
+      }
     }
   };
 
@@ -171,7 +191,9 @@ export default function Signup() {
           <div className="text-sm text-center space-y-2">
             <div>
               Already have an account?{" "}
-              <Link href="/login" className="font-medium text-orange-600 hover:text-orange-500">
+              <Link
+                href={`/login?redirect=${encodeURIComponent(redirectTo)}`}
+                className="font-medium text-orange-600 hover:text-orange-500">
                 Sign in
               </Link>
             </div>

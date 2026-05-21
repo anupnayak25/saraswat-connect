@@ -64,7 +64,20 @@ export default function Step1StartingPoint() {
     <div className="max-w-2xl mx-auto">
       <div className="text-center mb-8">
         <h2 className="text-3xl font-bold text-stone-800 mb-2">Where are you starting from?</h2>
-        <p className="text-stone-600">Select your journey&apos;s beginning point</p>
+        <p className="text-stone-600">Select your journey&apos;s beginning point and travel date</p>
+      </div>
+
+      <div className="mb-6">
+        <label htmlFor="travelDate" className="block text-sm font-medium text-stone-700 mb-2">
+          Travel Date
+        </label>
+        <input
+          id="travelDate"
+          type="date"
+          value={tripData.travelDate || ""}
+          onChange={(e) => updateTripData({ travelDate: e.target.value })}
+          className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+        />
       </div>
 
       {/* Search Bar */}

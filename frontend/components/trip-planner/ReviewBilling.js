@@ -3,12 +3,14 @@
 import { useState, useEffect } from "react";
 import { useTripPlanner } from "@/contexts/TripPlannerContext";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/components/ToastProvider";
 import { tripPlannerAPI } from "@/lib/tripPlannerAPI";
 import { useRouter } from "next/navigation";
 
 export default function Step5ReviewBilling() {
   const { tripData, prevStep, resetTrip } = useTripPlanner();
   const { user } = useAuth();
+  const { alert } = useToast();
   const [costBreakdown, setCostBreakdown] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -56,20 +58,26 @@ export default function Step5ReviewBilling() {
             currentStep: 5,
           }),
         );
+        sessionStorage.setItem(
+          "postAuthRedirect",
+          JSON.stringify({
+            path: "/trip-planner",
+          }),
+        );
       }
       router.push("/login?redirect=/trip-planner");
       return;
     }
 
     setSubmitting(true);
-    const result = await tripPlannerAPI.submitBooking(tripData);
+    const result = await tripPlannerAPI.submitBooking(tripData, user?.id, costBreakdown?.total);
 
     if (result.status === "confirmed") {
-      alert(`Success! ${result.message}\nBooking ID: ${result.bookingId}`);
+      await alert(`Success! ${result.message}\nBooking ID: ${result.bookingId}`, { variant: "success" });
       resetTrip();
-      router.push("/");
+      router.push("/bookings");
     } else {
-      alert("Booking failed. Please try again.");
+      await alert("Booking failed. Please try again.", { variant: "error" });
     }
     setSubmitting(false);
   };

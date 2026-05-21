@@ -100,6 +100,12 @@ export const AuthProvider = ({ children }) => {
       },
     });
 
+    if (data?.session?.user && !error) {
+      const userWithRole = await fetchUserWithRole(data.session.user);
+      setUser(userWithRole);
+      return { data: { ...data, user: userWithRole }, error };
+    }
+
     return { data, error };
   };
 

@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import AdminLayout from "@/components/saraswat-admin/AdminLayout";
 import FormModal from "@/components/saraswat-admin/FormModal";
+import { useToast } from "@/components/ToastProvider";
 
 export default function PoojasPage() {
   const [poojas, setPoojas] = useState([]);
@@ -13,6 +14,7 @@ export default function PoojasPage() {
   const [modalMode, setModalMode] = useState("add");
   const [currentItem, setCurrentItem] = useState(null);
   const messageHandlerRef = useRef(null);
+  const { confirm } = useToast();
 
   useEffect(() => {
     loadData();
@@ -51,7 +53,8 @@ export default function PoojasPage() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm("Are you sure you want to delete this pooja?")) return;
+    const confirmed = await confirm("Are you sure you want to delete this pooja?");
+    if (!confirmed) return;
 
     try {
       const { error } = await supabase.from("poojas").delete().eq("id", id);

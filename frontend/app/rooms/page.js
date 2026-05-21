@@ -8,12 +8,14 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/components/ToastProvider";
 
 const FALLBACK_ROOM_IMAGE = "/assets/room.png";
 
 export default function RoomBooking() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+  const { alert } = useToast();
 
   const [places, setPlaces] = useState([]);
   const [rooms, setRooms] = useState([]);
@@ -24,6 +26,27 @@ export default function RoomBooking() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [bookingSubmitting, setBookingSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = sessionStorage.getItem("postAuthRedirect");
+    if (!saved) return;
+
+    try {
+      const parsed = JSON.parse(saved);
+      if (parsed?.path !== "/rooms") return;
+      const state = parsed.state || {};
+      setSelectedPlaceId(state.selectedPlaceId || "");
+      setCheckInDate(state.checkInDate || "");
+      setCheckOutDate(state.checkOutDate || "");
+      if (state.guests != null) {
+        setGuests(Number(state.guests) || 1);
+      }
+      sessionStorage.removeItem("postAuthRedirect");
+    } catch {
+      sessionStorage.removeItem("postAuthRedirect");
+    }
+  }, []);
 
   useEffect(() => {
     let cancelled = false;
@@ -76,32 +99,44 @@ export default function RoomBooking() {
     if (authLoading) return;
 
     if (!user) {
-      router.push(`/login?next=${encodeURIComponent("/rooms")}`);
+      if (typeof window !== "undefined") {
+        const redirectPayload = {
+          path: "/rooms",
+          state: {
+            selectedPlaceId,
+            checkInDate,
+            checkOutDate,
+            guests,
+          },
+        };
+        sessionStorage.setItem("postAuthRedirect", JSON.stringify(redirectPayload));
+      }
+      router.push(`/login?redirect=${encodeURIComponent("/rooms")}`);
       return;
     }
 
     if (!selectedPlaceId) {
-      alert("Please select a location first.");
+      await alert("Please select a location first.", { variant: "warning" });
       return;
     }
 
     if (!checkInDate || !checkOutDate) {
-      alert("Please select check-in and check-out dates.");
+      await alert("Please select check-in and check-out dates.", { variant: "warning" });
       return;
     }
 
     const checkIn = new Date(checkInDate);
     const checkOut = new Date(checkOutDate);
     if (!(checkIn instanceof Date) || Number.isNaN(checkIn.getTime())) {
-      alert("Invalid check-in date.");
+      await alert("Invalid check-in date.", { variant: "warning" });
       return;
     }
     if (!(checkOut instanceof Date) || Number.isNaN(checkOut.getTime())) {
-      alert("Invalid check-out date.");
+      await alert("Invalid check-out date.", { variant: "warning" });
       return;
     }
     if (checkOut <= checkIn) {
-      alert("Check-out date must be after check-in date.");
+      await alert("Check-out date must be after check-in date.", { variant: "warning" });
       return;
     }
 
@@ -126,9 +161,10 @@ export default function RoomBooking() {
       ]);
 
       if (insertError) throw insertError;
-      alert("Booking created. Status: pending");
+      await alert("Booking created. Status: pending", { variant: "success" });
+      router.push("/bookings");
     } catch (e) {
-      alert(e?.message || "Failed to create booking");
+      await alert(e?.message || "Failed to create booking", { variant: "error" });
     } finally {
       setBookingSubmitting(false);
     }

@@ -4,12 +4,14 @@ import { useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import AdminSidebar from "@/components/AdminSidebar";
 import { supabase } from "@/lib/supabase";
+import { useToast } from "@/components/ToastProvider";
 
 function AdminRoomsContent() {
   const [rooms, setRooms] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showModal, setShowModal] = useState(false);
   const [editingRoom, setEditingRoom] = useState(null);
+  const { alert, confirm } = useToast();
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -63,7 +65,7 @@ function AdminRoomsContent() {
       fetchRooms();
     } catch (error) {
       console.error("Error saving room:", error);
-      alert("Error saving room: " + error.message);
+      await alert(`Error saving room: ${error.message}`, { variant: "error" });
     } finally {
       setLoading(false);
     }
@@ -84,7 +86,8 @@ function AdminRoomsContent() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm("Are you sure you want to delete this room?")) return;
+    const confirmed = await confirm("Are you sure you want to delete this room?");
+    if (!confirmed) return;
 
     try {
       const { error } = await supabase.from("rooms").delete().eq("id", id);
@@ -92,7 +95,7 @@ function AdminRoomsContent() {
       fetchRooms();
     } catch (error) {
       console.error("Error deleting room:", error);
-      alert("Error deleting room: " + error.message);
+      await alert(`Error deleting room: ${error.message}`, { variant: "error" });
     }
   };
 

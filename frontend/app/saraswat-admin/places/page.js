@@ -4,6 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { supabase } from "@/lib/supabase";
 import AdminLayout from "@/components/saraswat-admin/AdminLayout";
 import FormModal from "@/components/saraswat-admin/FormModal";
+import { useToast } from "@/components/ToastProvider";
 
 export default function PlacesPage() {
   const [places, setPlaces] = useState([]);
@@ -12,6 +13,7 @@ export default function PlacesPage() {
   const [modalMode, setModalMode] = useState("add");
   const [currentItem, setCurrentItem] = useState(null);
   const messageHandlerRef = useRef(null);
+  const { confirm } = useToast();
 
   useEffect(() => {
     loadData();
@@ -44,7 +46,8 @@ export default function PlacesPage() {
   };
 
   const handleDelete = async (id) => {
-    if (!confirm("Are you sure you want to delete this place?")) return;
+    const confirmed = await confirm("Are you sure you want to delete this place?");
+    if (!confirmed) return;
 
     try {
       const { error } = await supabase.from("places").delete().eq("id", id);

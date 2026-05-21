@@ -24,6 +24,13 @@ export default function ProtectedRoute({ children, requiredRole = null }) {
     if (loading) return;
 
     if (!user) {
+      if (typeof window !== "undefined") {
+        const redirectPayload = {
+          path: window.location.pathname,
+          search: window.location.search,
+        };
+        sessionStorage.setItem("postAuthRedirect", JSON.stringify(redirectPayload));
+      }
       router.push("/login");
       return;
     }

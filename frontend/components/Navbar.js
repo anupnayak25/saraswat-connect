@@ -2,12 +2,15 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const {user, signOut} = useAuth();
+  const pathname = usePathname();
+  const isHomePage = pathname === "/";
 
   const handleSignOut = async () => {
     try {
@@ -44,12 +47,19 @@ export default function Navbar() {
             <Link href="/about" className="text-stone-700 hover:text-teal-600 transition">
               About Us
             </Link>
-            <a href="#services" className="text-stone-700 hover:text-teal-600 transition">
-              Services
-            </a>
+            {isHomePage && (
+              <a href="#services" className="text-stone-700 hover:text-teal-600 transition">
+                Services
+              </a>
+            )}
             <Link href="/packages" className="text-stone-700 hover:text-teal-600 transition">
               Tour Packages
             </Link>
+            {user && (
+              <Link href="/bookings" className="text-stone-700 hover:text-teal-600 transition">
+                My Bookings
+              </Link>
+            )}
             <Link href="/contact" className="text-stone-700 hover:text-teal-600 transition">
               Contact
             </Link>
@@ -89,12 +99,19 @@ export default function Navbar() {
               <Link href="/about" className="text-stone-700 hover:text-teal-600 transition">
                 About Us
               </Link>
-              <a href="#services" className="text-stone-700 hover:text-teal-600 transition">
-                Services
-              </a>
+              {isHomePage && (
+                <a href="#services" className="text-stone-700 hover:text-teal-600 transition">
+                  Services
+                </a>
+              )}
               <Link href="/packages" className="text-stone-700 hover:text-teal-600 transition">
                 Tour Packages
               </Link>
+              {user && (
+                <Link href="/bookings" className="text-stone-700 hover:text-teal-600 transition">
+                  My Bookings
+                </Link>
+              )}
               <Link href="/contact" className="text-stone-700 hover:text-teal-600 transition">
                 Contact
               </Link>

@@ -1,66 +1,135 @@
 "use client";
 
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import { supabase } from "@/lib/supabase";
+import { useAuth } from "@/contexts/AuthContext";
+import { useToast } from "@/components/ToastProvider";
 
-const tourPackages = [
-  {
-    id: 1,
-    name: "Spiritual Darshan Tour",
-    days: 3,
-    nights: 2,
-    price: 5999,
-    image: "/assets/spiritual-tour.jpg",
-    highlights: ["Temple visits", "Guided tours", "Accommodation", "Meals included"],
-  },
-  {
-    id: 2,
-    name: "Hill Station Yatra",
-    days: 2,
-    nights: 1,
-    price: 4499,
-    image: "/assets/hill-station.jpg",
-    highlights: ["Hill temple", "Scenic views", "Hotel stay", "Breakfast included"],
-  },
-  {
-    id: 3,
-    name: "Pilgrimage Special",
-    days: 4,
-    nights: 3,
-    price: 7999,
-    image: "/assets/pilgrimage.jpg",
-    highlights: ["Multiple temples", "AC bus", "3-star hotel", "All meals"],
-  },
-  {
-    id: 4,
-    name: "Weekend Temple Tour",
-    days: 2,
-    nights: 1,
-    price: 3999,
-    image: "/assets/weekend-tour.jpg",
-    highlights: ["2 temple visits", "Transport", "Lunch", "Guide"],
-  },
-  {
-    id: 5,
-    name: "Divine Expedition",
-    days: 5,
-    nights: 4,
-    price: 12999,
-    image: "/assets/expedition.jpg",
-    highlights: ["5 sacred temples", "Luxury stay", "Full board", "Private vehicle"],
-  },
-  {
-    id: 6,
-    name: "Heritage Temple Circuit",
-    days: 3,
-    nights: 2,
-    price: 6499,
-    image: "/assets/heritage.jpg",
-    highlights: ["Ancient temples", "Cultural shows", "Hotel stay", "Meals"],
-  },
-];
+const DEFAULT_HIGHLIGHTS = ["Temple visits", "Guided tours", "Accommodation", "Meals included"];
 
 export default function TourPackages() {
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+  const { alert } = useToast();
+  const [packages, setPackages] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  const [bookingDate, setBookingDate] = useState("");
+  const [travelers, setTravelers] = useState(1);
+  const [bookingSubmitting, setBookingSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = sessionStorage.getItem("postAuthRedirect");
+    if (!saved) return;
+
+    try {
+      const parsed = JSON.parse(saved);
+      if (parsed?.path !== "/packages") return;
+      const state = parsed.state || {};
+      setBookingDate(state.bookingDate || "");
+      if (state.travelers != null) {
+        setTravelers(Number(state.travelers) || 1);
+      }
+      sessionStorage.removeItem("postAuthRedirect");
+    } catch {
+      sessionStorage.removeItem("postAuthRedirect");
+    }
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    setLoading(true);
+    setLoadError(false);
+
+    (async () => {
+      try {
+        const { data, error } = await supabase
+          .from("packages")
+          .select("id, name, duration_days, price, description, highlights, image_url, is_available")
+          .eq("is_available", true)
+          .order("created_at", { ascending: false });
+
+        if (error) throw error;
+        if (cancelled) return;
+
+        const normalized = (data || []).map((pkg) => ({
+          id: pkg.id,
+          name: pkg.name,
+          days: Number(pkg.duration_days ?? 0),
+          price: Number(pkg.price ?? 0),
+          description: pkg.description ?? "",
+          highlights: Array.isArray(pkg.highlights) && pkg.highlights.length > 0 ? pkg.highlights : DEFAULT_HIGHLIGHTS,
+          image: pkg.image_url ?? null,
+          isAvailable: pkg.is_available ?? true,
+        }));
+
+        setPackages(normalized);
+      } catch {
+        if (!cancelled) setLoadError(true);
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const handleBookPackage = async (pkg) => {
+    if (authLoading) return;
+
+    if (!user) {
+      if (typeof window !== "undefined") {
+        const redirectPayload = {
+          path: "/packages",
+          state: {
+            bookingDate,
+            travelers,
+          },
+        };
+        sessionStorage.setItem("postAuthRedirect", JSON.stringify(redirectPayload));
+      }
+      router.push(`/login?redirect=${encodeURIComponent("/packages")}`);
+      return;
+    }
+
+    if (!bookingDate) {
+      await alert("Please select a booking date.", { variant: "warning" });
+      return;
+    }
+
+    const travelerCount = Math.max(1, Number(travelers) || 1);
+    const totalPrice = Number(pkg.price ?? 0) * travelerCount;
+
+    setBookingSubmitting(true);
+    try {
+      const { error: insertError } = await supabase.from("package_bookings").insert([
+        {
+          package_id: pkg.id,
+          user_id: user.id,
+          booking_date: bookingDate,
+          number_of_travelers: travelerCount,
+          total_price: totalPrice,
+          booking_status: "pending",
+        },
+      ]);
+
+      if (insertError) throw insertError;
+      await alert("Package booking created. Status: pending", { variant: "success" });
+      router.push("/bookings");
+    } catch (e) {
+      await alert(e?.message || "Failed to create package booking", { variant: "error" });
+    } finally {
+      setBookingSubmitting(false);
+    }
+  };
+
   return (
     <div className="min-h-screen bg-stone-50">
       <Navbar />
@@ -72,49 +141,94 @@ export default function TourPackages() {
           <p className="text-stone-600">Explore divine temple tours and spiritual journeys</p>
         </div>
 
-        {/* Packages Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {tourPackages.map((pkg) => (
-            <div key={pkg.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
-              {/* Package Image */}
-              <div className="h-56 bg-linear-to-br from-teal-200 to-teal-400 flex items-center justify-center relative">
-                <span className="text-stone-500">Package Image</span>
-              </div>
-
-              {/* Package Details */}
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-gray-800 mb-2">{pkg.name}</h3>
-
-                <p className="text-gray-600 text-sm mb-3">
-                  {pkg.days} Days / {pkg.nights} Nights
-                </p>
-
-                <div className="mb-4">
-                  <p className="text-sm font-semibold text-stone-700 mb-2">Package Highlights:</p>
-                  <ul className="space-y-1">
-                    {pkg.highlights.map((highlight, index) => (
-                      <li key={index} className="text-sm text-stone-600 flex items-start">
-                        <span className="text-green-600 mr-2">✓</span>
-                        {highlight}
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-
-                <div className="flex items-center justify-between mb-4 pt-4 border-t border-gray-200">
-                  <div>
-                    <p className="text-sm text-stone-600">From</p>
-                    <p className="text-2xl font-bold text-teal-600">₹ {pkg.price.toLocaleString()}</p>
-                  </div>
-                </div>
-
-                <button className="w-full bg-teal-600 text-white py-3 rounded-lg font-semibold hover:bg-teal-800 transition">
-                  View Package
-                </button>
-              </div>
+        <div className="mb-8 bg-white rounded-lg shadow-md p-6">
+          <h2 className="text-lg font-semibold text-stone-800 mb-4">Booking Preferences</h2>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-2">Booking Date</label>
+              <input
+                type="date"
+                value={bookingDate}
+                onChange={(e) => setBookingDate(e.target.value)}
+                className="w-full px-4 py-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              />
             </div>
-          ))}
+            <div>
+              <label className="block text-sm font-medium text-stone-700 mb-2">Travelers</label>
+              <input
+                type="number"
+                min="1"
+                value={travelers}
+                onChange={(e) => setTravelers(e.target.value)}
+                className="w-full px-4 py-3 border border-stone-300 rounded-lg focus:ring-2 focus:ring-teal-500 focus:border-transparent"
+              />
+            </div>
+            <div className="flex items-end text-sm text-stone-500">
+              Select a date and traveler count before booking any package.
+            </div>
+          </div>
         </div>
+
+        {/* Packages Grid */}
+        {loading ? (
+          <div className="rounded-lg border border-stone-200 bg-white p-6 text-stone-600">Loading packages...</div>
+        ) : loadError ? (
+          <div className="rounded-lg border border-red-200 bg-red-50 p-6 text-sm text-red-700">
+            Unable to load packages right now. Please try again.
+          </div>
+        ) : packages.length === 0 ? (
+          <div className="rounded-lg border border-stone-200 bg-white p-6 text-stone-600">
+            No packages available at the moment.
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {packages.map((pkg) => (
+              <div key={pkg.id} className="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-xl transition">
+                {/* Package Image */}
+                <div className="h-56 bg-linear-to-br from-teal-200 to-teal-400 flex items-center justify-center relative">
+                  {pkg.image ? (
+                    <img src={pkg.image} alt={pkg.name} className="h-full w-full object-cover" />
+                  ) : (
+                    <span className="text-stone-500">Package Image</span>
+                  )}
+                </div>
+
+                {/* Package Details */}
+                <div className="p-6">
+                  <h3 className="text-xl font-bold text-gray-800 mb-2">{pkg.name}</h3>
+                  <p className="text-gray-600 text-sm mb-3">{pkg.days} Days</p>
+
+                  <div className="mb-4">
+                    <p className="text-sm font-semibold text-stone-700 mb-2">Package Highlights:</p>
+                    <ul className="space-y-1">
+                      {pkg.highlights.map((highlight, index) => (
+                        <li key={index} className="text-sm text-stone-600 flex items-start">
+                          <span className="text-green-600 mr-2">✓</span>
+                          {highlight}
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+
+                  <div className="flex items-center justify-between mb-4 pt-4 border-t border-gray-200">
+                    <div>
+                      <p className="text-sm text-stone-600">From</p>
+                      <p className="text-2xl font-bold text-teal-600">₹ {pkg.price.toLocaleString()}</p>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => handleBookPackage(pkg)}
+                    disabled={bookingSubmitting}
+                    className="w-full bg-teal-600 text-white py-3 rounded-lg font-semibold hover:bg-teal-800 transition disabled:opacity-60">
+                    Book Package
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
 
         {/* Additional Info Section */}
         <div className="mt-12 bg-white rounded-lg shadow-md p-8">

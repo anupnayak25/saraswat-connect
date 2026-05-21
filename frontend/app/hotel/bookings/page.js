@@ -4,11 +4,13 @@ import { useCallback, useEffect, useState } from "react";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import HotelSidebar from "@/components/HotelSidebar";
 import { supabase } from "@/lib/supabase";
+import { useToast } from "@/components/ToastProvider";
 
 function HotelBookingsContent() {
   const [bookings, setBookings] = useState([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("all");
+  const { alert } = useToast();
 
   const fetchBookings = useCallback(async () => {
     try {
@@ -49,7 +51,7 @@ function HotelBookingsContent() {
       fetchBookings();
     } catch (error) {
       console.error("Error updating booking:", error);
-      alert("Error updating booking: " + error.message);
+      await alert(`Error updating booking: ${error.message}`, { variant: "error" });
     }
   };
 

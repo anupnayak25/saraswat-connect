@@ -46,7 +46,7 @@ export default function RouteMap({ routeGeometry, stops }) {
   const center = hasRoute ? linePositions[0] : DEFAULT_CENTER;
 
   return (
-    <MapContainer center={center} zoom={DEFAULT_ZOOM} className="h-full w-full rounded-lg">
+    <MapContainer center={center} zoom={DEFAULT_ZOOM} className="h-full w-full rounded-lg relative z-0">
       <TileLayer
         attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
         url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"

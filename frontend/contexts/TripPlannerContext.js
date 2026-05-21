@@ -7,6 +7,7 @@ const TripPlannerContext = createContext({});
 export const TripPlannerProvider = ({ children }) => {
   const [currentStep, setCurrentStep] = useState(1);
   const [tripData, setTripData] = useState({
+    travelDate: "",
     startingPoint: null,
     destinations: [],
     optimizedRoute: [],
@@ -36,6 +37,7 @@ export const TripPlannerProvider = ({ children }) => {
   const resetTrip = () => {
     setCurrentStep(1);
     setTripData({
+      travelDate: "",
       startingPoint: null,
       destinations: [],
       optimizedRoute: [],

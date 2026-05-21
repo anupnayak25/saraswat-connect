@@ -392,12 +392,48 @@ export const tripPlannerAPI = {
   },
 
   // Submit booking
-  submitBooking: async (tripData) => {
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+  submitBooking: async (tripData, userId, totalPrice) => {
+    if (!userId) {
+      return {
+        bookingId: null,
+        status: "failed",
+        message: "Please sign in to book your trip.",
+      };
+    }
 
-    // Mock submission
+    const travelDate = tripData?.travelDate || new Date().toISOString().slice(0, 10);
+    const payload = {
+      user_id: userId,
+      travel_date: travelDate,
+      total_price: Number(totalPrice ?? 0),
+      booking_status: "pending",
+      trip_data: {
+        startingPoint: tripData?.startingPoint ?? null,
+        destinations: tripData?.destinations ?? [],
+        optimizedRoute: tripData?.optimizedRoute ?? [],
+        travelDate: tripData?.travelDate || "",
+        selectedHotels: tripData?.selectedHotels ?? [],
+        selectedStays: tripData?.selectedStays ?? [],
+        selectedAttractions: tripData?.selectedAttractions ?? [],
+        vehicleType: tripData?.vehicleType ?? null,
+        travelAgency: tripData?.travelAgency ?? null,
+        totalDistance: tripData?.totalDistance ?? 0,
+        estimatedDuration: tripData?.estimatedDuration ?? 0,
+      },
+    };
+
+    const { data, error } = await supabase.from("trip_bookings").insert([payload]).select("id").single();
+
+    if (error) {
+      return {
+        bookingId: null,
+        status: "failed",
+        message: error.message || "Failed to create trip booking.",
+      };
+    }
+
     return {
-      bookingId: `TRP${Date.now()}`,
+      bookingId: data?.id ?? null,
       status: "confirmed",
       message: "Your trip has been booked successfully!",
     };

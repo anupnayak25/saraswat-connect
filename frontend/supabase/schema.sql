@@ -197,6 +197,18 @@ CREATE TABLE package_bookings (
   updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Trip Planner Bookings table
+CREATE TABLE trip_bookings (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id UUID REFERENCES users(id) ON DELETE CASCADE,
+  travel_date DATE,
+  trip_data JSONB,
+  total_price DECIMAL(10, 2) NOT NULL,
+  booking_status VARCHAR(50) DEFAULT 'pending',
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Contact Messages table
 CREATE TABLE contact_messages (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
@@ -224,6 +236,7 @@ ALTER TABLE room_bookings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE vehicle_bookings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE pooja_bookings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE package_bookings ENABLE ROW LEVEL SECURITY;
+ALTER TABLE trip_bookings ENABLE ROW LEVEL SECURITY;
 ALTER TABLE contact_messages ENABLE ROW LEVEL SECURITY;
 
 -- RLS Policies
@@ -261,6 +274,10 @@ CREATE POLICY "Users can update own pooja bookings" ON pooja_bookings FOR UPDATE
 CREATE POLICY "Users can read own package bookings" ON package_bookings FOR SELECT USING (auth.uid() = user_id);
 CREATE POLICY "Users can create package bookings" ON package_bookings FOR INSERT WITH CHECK (auth.uid() = user_id);
 CREATE POLICY "Users can update own package bookings" ON package_bookings FOR UPDATE USING (auth.uid() = user_id);
+
+CREATE POLICY "Users can read own trip bookings" ON trip_bookings FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can create trip bookings" ON trip_bookings FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own trip bookings" ON trip_bookings FOR UPDATE USING (auth.uid() = user_id);
 
 -- Anyone can create contact messages
 CREATE POLICY "Anyone can create contact messages" ON contact_messages FOR INSERT WITH CHECK (true);
@@ -307,3 +324,7 @@ CREATE INDEX idx_package_bookings_user_id ON package_bookings(user_id);
 CREATE INDEX idx_package_bookings_package_id ON package_bookings(package_id);
 CREATE INDEX idx_package_bookings_date ON package_bookings(booking_date);
 CREATE INDEX idx_package_bookings_status ON package_bookings(booking_status);
+
+CREATE INDEX idx_trip_bookings_user_id ON trip_bookings(user_id);
+CREATE INDEX idx_trip_bookings_date ON trip_bookings(travel_date);
+CREATE INDEX idx_trip_bookings_status ON trip_bookings(booking_status);

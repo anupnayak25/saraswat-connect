@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 
@@ -17,6 +17,8 @@ export default function Signup() {
   const [loading, setLoading] = useState(false);
   const { signUp } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/";
 
   const handleChange = (e) => {
     setFormData({
@@ -52,8 +54,7 @@ export default function Signup() {
       setError(error.message);
       setLoading(false);
     } else {
-      // Redirect to home page after successful signup
-      router.push("/");
+      router.push(redirectTo);
     }
   };
 

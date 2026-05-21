@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect } from "react";
 import { TripPlannerProvider, useTripPlanner } from "@/contexts/TripPlannerContext";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -63,7 +64,27 @@ function StepIndicator() {
 }
 
 function TripPlannerContent() {
-  const { currentStep } = useTripPlanner();
+  const { currentStep, updateTripData, setCurrentStep } = useTripPlanner();
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const pending = sessionStorage.getItem("tripPlannerPending");
+    if (!pending) return;
+
+    try {
+      const parsed = JSON.parse(pending);
+      if (parsed?.tripData) {
+        updateTripData(parsed.tripData);
+      }
+      if (parsed?.currentStep) {
+        setCurrentStep(parsed.currentStep);
+      }
+    } catch {
+      // Ignore malformed session data.
+    } finally {
+      sessionStorage.removeItem("tripPlannerPending");
+    }
+  }, [updateTripData, setCurrentStep]);
 
   return (
     <div className="min-h-screen bg-stone-50">

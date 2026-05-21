@@ -2,11 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { useTripPlanner } from "@/contexts/TripPlannerContext";
+import { useAuth } from "@/contexts/AuthContext";
 import { tripPlannerAPI } from "@/lib/tripPlannerAPI";
 import { useRouter } from "next/navigation";
 
 export default function Step5ReviewBilling() {
   const { tripData, prevStep, resetTrip } = useTripPlanner();
+  const { user } = useAuth();
   const [costBreakdown, setCostBreakdown] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -45,6 +47,20 @@ export default function Step5ReviewBilling() {
   }, [tripData]);
 
   const handleConfirmBooking = async () => {
+    if (!user) {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem(
+          "tripPlannerPending",
+          JSON.stringify({
+            tripData,
+            currentStep: 5,
+          }),
+        );
+      }
+      router.push("/login?redirect=/trip-planner");
+      return;
+    }
+
     setSubmitting(true);
     const result = await tripPlannerAPI.submitBooking(tripData);
 
@@ -211,6 +227,12 @@ export default function Step5ReviewBilling() {
               </span>
             </label>
           </div>
+
+          {!user && (
+            <div className="mb-6 rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-800">
+              Please sign in to complete your booking. We will bring you back to this step after login.
+            </div>
+          )}
 
           {/* Action Buttons */}
           <div className="flex space-x-4">

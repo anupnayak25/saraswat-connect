@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 
@@ -12,6 +12,8 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const { signIn } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/";
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -27,7 +29,9 @@ export default function Login() {
       // Redirect based on role from users table
       const role = data.user?.role;
 
-      if (role === "admin") {
+      if (redirectTo && redirectTo !== "/") {
+        router.push(redirectTo);
+      } else if (role === "admin") {
         router.push("/saraswat-admin");
       } else if (role === "hotel-admin") {
         router.push("/hotel");

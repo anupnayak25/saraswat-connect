@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useContext, useState } from "react";
+import { createContext, useContext, useState, useEffect } from "react";
 
 const TripPlannerContext = createContext({});
 
@@ -25,6 +25,33 @@ export const TripPlannerProvider = ({ children }) => {
   const updateTripData = (data) => {
     setTripData((prev) => ({ ...prev, ...data }));
   };
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const saved = sessionStorage.getItem("tripPlannerState");
+    if (!saved) return;
+
+    try {
+      const parsed = JSON.parse(saved);
+      if (parsed?.tripData) {
+        setTripData((prev) => ({ ...prev, ...parsed.tripData }));
+      }
+      if (parsed?.currentStep) {
+        setCurrentStep(parsed.currentStep);
+      }
+    } catch {
+      sessionStorage.removeItem("tripPlannerState");
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const payload = JSON.stringify({
+      currentStep,
+      tripData,
+    });
+    sessionStorage.setItem("tripPlannerState", payload);
+  }, [currentStep, tripData]);
 
   const nextStep = () => {
     setCurrentStep((prev) => Math.min(prev + 1, 5));
@@ -51,6 +78,9 @@ export const TripPlannerProvider = ({ children }) => {
       totalCost: 0,
       routeGeometry: null,
     });
+    if (typeof window !== "undefined") {
+      sessionStorage.removeItem("tripPlannerState");
+    }
   };
 
   return (

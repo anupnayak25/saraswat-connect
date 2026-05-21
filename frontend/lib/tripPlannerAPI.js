@@ -263,13 +263,33 @@ export const tripPlannerAPI = {
 
   // Get recommendations near route
   getRecommendations: async (route) => {
-    const placeIds = (Array.isArray(route) ? route : [])
-      .map((p) => p?.placeId || p?.id)
+    const routeStops = Array.isArray(route) ? route : [];
+    const placeIds = routeStops
+      .map((stop) => stop?.placeId)
       .filter((id) => typeof id === "string" && id.length > 0);
+    const stopIds = routeStops.map((stop) => stop?.id).filter((id) => typeof id === "string" && id.length > 0);
 
-    const uniquePlaceIds = [...new Set(placeIds)];
+    const uniquePlaceIds = new Set(placeIds);
 
-    if (uniquePlaceIds.length === 0) {
+    if (stopIds.length > 0) {
+      const [placeResult, touristPlaceResult] = await Promise.all([
+        supabase.from("places").select("id").in("id", stopIds),
+        supabase.from("tourist_places").select("id, place_id").in("id", stopIds),
+      ]);
+
+      if (placeResult.error) throw placeResult.error;
+      if (touristPlaceResult.error) throw touristPlaceResult.error;
+
+      (placeResult.data || []).forEach((row) => {
+        if (row?.id) uniquePlaceIds.add(row.id);
+      });
+      (touristPlaceResult.data || []).forEach((row) => {
+        if (row?.place_id) uniquePlaceIds.add(row.place_id);
+      });
+    }
+
+    const placeIdList = [...uniquePlaceIds];
+    if (placeIdList.length === 0) {
       return { hotels: [], stays: [], attractions: [] };
     }
 
@@ -277,19 +297,19 @@ export const tripPlannerAPI = {
       supabase
         .from("hotels")
         .select("id, name, place_id, price_per_night, rating, amenities, image_url, place:places(name)")
-        .in("place_id", uniquePlaceIds)
+        .in("place_id", placeIdList)
         .order("created_at", { ascending: false })
         .limit(40),
       supabase
         .from("rooms")
         .select("id, name, type, place_id, price_per_night, amenities, image_url, place:places(name)")
-        .in("place_id", uniquePlaceIds)
+        .in("place_id", placeIdList)
         .order("created_at", { ascending: false })
         .limit(40),
       supabase
         .from("tourist_places")
         .select("id, name, type, place_id, entry_fee, image_url, place:places(name)")
-        .in("place_id", uniquePlaceIds)
+        .in("place_id", placeIdList)
         .order("created_at", { ascending: false })
         .limit(60),
     ]);
@@ -297,7 +317,7 @@ export const tripPlannerAPI = {
     if (hotelsResult.error) throw hotelsResult.error;
     if (staysResult.error) throw staysResult.error;
     if (attractionsResult.error) throw attractionsResult.error;
-
+ 
     return {
       hotels: (hotelsResult.data || []).map(toHotel),
       stays: (staysResult.data || []).map(toStay),

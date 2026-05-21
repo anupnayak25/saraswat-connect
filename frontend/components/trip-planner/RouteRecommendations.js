@@ -352,12 +352,6 @@ export default function Step3RouteRecommendations() {
           ))}
         </div>
       </div>
-              <button className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-red-600 text-white text-xs leading-5 text-center shadow disabled:opacity-50">
-                  {routeUpdating && routeActionId === location.id ? (
-                    <span className="inline-block h-3 w-3 border border-white border-t-transparent rounded-full animate-spin" />
-                  ) : (
-                    "×"
-                  )}</button>
       <div className="mb-8">
         {loading ? (
           <div className="text-center py-12">

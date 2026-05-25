@@ -3,15 +3,12 @@
 import { useState, useEffect } from "react";
 import { useTripPlanner } from "@/contexts/TripPlannerContext";
 import { useAuth } from "@/contexts/AuthContext";
-import { useToast } from "@/components/ToastProvider";
 import { tripPlannerAPI } from "@/lib/tripPlannerAPI";
 import { useRouter } from "next/navigation";
-import { payWithRazorpay } from "@/lib/razorpay";
 
 export default function Step5ReviewBilling() {
   const { tripData, prevStep, resetTrip } = useTripPlanner();
   const { user } = useAuth();
-  const { alert } = useToast();
   const [costBreakdown, setCostBreakdown] = useState(null);
   const [loading, setLoading] = useState(true);
   const [submitting, setSubmitting] = useState(false);
@@ -59,57 +56,22 @@ export default function Step5ReviewBilling() {
             currentStep: 5,
           }),
         );
-        sessionStorage.setItem(
-          "postAuthRedirect",
-          JSON.stringify({
-            path: "/trip-planner",
-          }),
-        );
       }
       router.push("/login?redirect=/trip-planner");
       return;
     }
 
-    const totalAmount = Number(costBreakdown?.total ?? 0);
-
-    if (!Number.isFinite(totalAmount) || totalAmount <= 0) {
-      await alert("Unable to calculate total amount. Please try again.", { variant: "warning" });
-      return;
-    }
-
     setSubmitting(true);
-    try {
-      await payWithRazorpay({
-        amount: totalAmount * 100,
-        name: "Saraswat Connect",
-        description: "Trip planner booking",
-        prefill: {
-          name: user?.full_name || user?.email || "Guest",
-          email: user?.email || "",
-          contact: user?.phone || "",
-        },
-        notes: {
-          booking_type: "trip",
-        },
-        theme: {
-          color: "#16a34a",
-        },
-      });
+    const result = await tripPlannerAPI.submitBooking(tripData);
 
-      const result = await tripPlannerAPI.submitBooking(tripData, user?.id, totalAmount);
-
-      if (result.status === "confirmed") {
-        await alert(`Success! ${result.message}\nBooking ID: ${result.bookingId}`, { variant: "success" });
-        resetTrip();
-        router.push("/bookings");
-      } else {
-        await alert("Booking failed. Please try again.", { variant: "error" });
-      }
-    } catch (e) {
-      await alert(e?.message || "Payment failed. Please try again.", { variant: "error" });
-    } finally {
-      setSubmitting(false);
+    if (result.status === "confirmed") {
+      alert(`Success! ${result.message}\nBooking ID: ${result.bookingId}`);
+      resetTrip();
+      router.push("/");
+    } else {
+      alert("Booking failed. Please try again.");
     }
+    setSubmitting(false);
   };
 
   return (

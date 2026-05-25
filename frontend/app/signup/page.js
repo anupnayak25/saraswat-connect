@@ -1,11 +1,11 @@
 "use client";
 
-import { Suspense, useState } from "react";
+import { useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 
-function SignupContent() {
+export default function Signup() {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -18,21 +18,7 @@ function SignupContent() {
   const { signUp } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
-  const redirectTo = searchParams.get("redirect") || searchParams.get("next") || "/";
-
-  const getSessionRedirect = () => {
-    if (typeof window === "undefined") return null;
-    const saved = sessionStorage.getItem("postAuthRedirect");
-    if (!saved) return null;
-
-    try {
-      const parsed = JSON.parse(saved);
-      if (!parsed?.path) return null;
-      return `${parsed.path}${parsed.search || ""}`;
-    } catch {
-      return null;
-    }
-  };
+  const redirectTo = searchParams.get("redirect") || "/";
 
   const handleChange = (e) => {
     setFormData({
@@ -68,13 +54,7 @@ function SignupContent() {
       setError(error.message);
       setLoading(false);
     } else {
-      const sessionRedirect = getSessionRedirect();
-      if (sessionRedirect) {
-        sessionStorage.removeItem("postAuthRedirect");
-        router.push(sessionRedirect);
-      } else {
-        router.push(redirectTo);
-      }
+      router.push(redirectTo);
     }
   };
 
@@ -191,9 +171,7 @@ function SignupContent() {
           <div className="text-sm text-center space-y-2">
             <div>
               Already have an account?{" "}
-              <Link
-                href={`/login?redirect=${encodeURIComponent(redirectTo)}`}
-                className="font-medium text-orange-600 hover:text-orange-500">
+              <Link href="/login" className="font-medium text-orange-600 hover:text-orange-500">
                 Sign in
               </Link>
             </div>
@@ -213,13 +191,5 @@ function SignupContent() {
         </div>
       </div>
     </div>
-  );
-}
-
-export default function Signup() {
-  return (
-    <Suspense fallback={<div className="min-h-screen flex items-center justify-center">Loading...</div>}>
-      <SignupContent />
-    </Suspense>
   );
 }

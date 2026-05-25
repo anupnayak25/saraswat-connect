@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ToastProvider";
 import { tripPlannerAPI } from "@/lib/tripPlannerAPI";
 import { useRouter } from "next/navigation";
+import { payWithRazorpay } from "@/lib/razorpay";
 
 export default function Step5ReviewBilling() {
   const { tripData, prevStep, resetTrip } = useTripPlanner();
@@ -69,17 +70,46 @@ export default function Step5ReviewBilling() {
       return;
     }
 
-    setSubmitting(true);
-    const result = await tripPlannerAPI.submitBooking(tripData, user?.id, costBreakdown?.total);
+    const totalAmount = Number(costBreakdown?.total ?? 0);
 
-    if (result.status === "confirmed") {
-      await alert(`Success! ${result.message}\nBooking ID: ${result.bookingId}`, { variant: "success" });
-      resetTrip();
-      router.push("/bookings");
-    } else {
-      await alert("Booking failed. Please try again.", { variant: "error" });
+    if (!Number.isFinite(totalAmount) || totalAmount <= 0) {
+      await alert("Unable to calculate total amount. Please try again.", { variant: "warning" });
+      return;
     }
-    setSubmitting(false);
+
+    setSubmitting(true);
+    try {
+      await payWithRazorpay({
+        amount: totalAmount * 100,
+        name: "Saraswat Connect",
+        description: "Trip planner booking",
+        prefill: {
+          name: user?.full_name || user?.email || "Guest",
+          email: user?.email || "",
+          contact: user?.phone || "",
+        },
+        notes: {
+          booking_type: "trip",
+        },
+        theme: {
+          color: "#16a34a",
+        },
+      });
+
+      const result = await tripPlannerAPI.submitBooking(tripData, user?.id, totalAmount);
+
+      if (result.status === "confirmed") {
+        await alert(`Success! ${result.message}\nBooking ID: ${result.bookingId}`, { variant: "success" });
+        resetTrip();
+        router.push("/bookings");
+      } else {
+        await alert("Booking failed. Please try again.", { variant: "error" });
+      }
+    } catch (e) {
+      await alert(e?.message || "Payment failed. Please try again.", { variant: "error" });
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (

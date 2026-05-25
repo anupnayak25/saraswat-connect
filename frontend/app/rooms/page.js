@@ -9,6 +9,7 @@ import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ToastProvider";
+import { payWithRazorpay } from "@/lib/razorpay";
 
 const FALLBACK_ROOM_IMAGE = "/assets/room.png";
 
@@ -146,8 +147,31 @@ export default function RoomBooking() {
     const pricePerNight = Number(room.price_per_night ?? 0);
     const totalPrice = Number.isFinite(pricePerNight) ? nights * pricePerNight : 0;
 
+    if (!Number.isFinite(totalPrice) || totalPrice <= 0) {
+      await alert("Room price is unavailable. Please try another room.", { variant: "warning" });
+      return;
+    }
+
     setBookingSubmitting(true);
     try {
+      await payWithRazorpay({
+        amount: totalPrice * 100,
+        name: "Saraswat Connect",
+        description: "Room booking",
+        prefill: {
+          name: user?.full_name || user?.email || "Guest",
+          email: user?.email || "",
+          contact: user?.phone || "",
+        },
+        notes: {
+          booking_type: "room",
+          room_id: room.id,
+        },
+        theme: {
+          color: "#0f766e",
+        },
+      });
+
       const { error: insertError } = await supabase.from("room_bookings").insert([
         {
           room_id: room.id,

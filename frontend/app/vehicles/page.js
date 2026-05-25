@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ToastProvider";
+import { payWithRazorpay } from "@/lib/razorpay";
 
 export default function VehicleBooking() {
   const router = useRouter();
@@ -117,8 +118,31 @@ export default function VehicleBooking() {
     const pricePerKm = Number(vehicle.price ?? 0);
     const totalPrice = Number.isFinite(pricePerKm) ? parsedDistance * pricePerKm : 0;
 
+    if (!Number.isFinite(totalPrice) || totalPrice <= 0) {
+      await alert("Vehicle price is unavailable. Please try another vehicle.", { variant: "warning" });
+      return;
+    }
+
     setBookingSubmitting(true);
     try {
+      await payWithRazorpay({
+        amount: totalPrice * 100,
+        name: "Saraswat Connect",
+        description: "Vehicle booking",
+        prefill: {
+          name: user?.full_name || user?.email || "Guest",
+          email: user?.email || "",
+          contact: user?.phone || "",
+        },
+        notes: {
+          booking_type: "vehicle",
+          vehicle_id: vehicle.id,
+        },
+        theme: {
+          color: "#0f766e",
+        },
+      });
+
       const { error: insertError } = await supabase.from("vehicle_bookings").insert([
         {
           vehicle_id: vehicle.id,

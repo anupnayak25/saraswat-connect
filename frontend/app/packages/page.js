@@ -7,6 +7,7 @@ import Footer from "@/components/Footer";
 import { supabase } from "@/lib/supabase";
 import { useAuth } from "@/contexts/AuthContext";
 import { useToast } from "@/components/ToastProvider";
+import { payWithRazorpay } from "@/lib/razorpay";
 
 const DEFAULT_HIGHLIGHTS = ["Temple visits", "Guided tours", "Accommodation", "Meals included"];
 
@@ -107,8 +108,31 @@ export default function TourPackages() {
     const travelerCount = Math.max(1, Number(travelers) || 1);
     const totalPrice = Number(pkg.price ?? 0) * travelerCount;
 
+    if (!Number.isFinite(totalPrice) || totalPrice <= 0) {
+      await alert("Package price is unavailable. Please try another package.", { variant: "warning" });
+      return;
+    }
+
     setBookingSubmitting(true);
     try {
+      await payWithRazorpay({
+        amount: totalPrice * 100,
+        name: "Saraswat Connect",
+        description: "Package booking",
+        prefill: {
+          name: user?.full_name || user?.email || "Guest",
+          email: user?.email || "",
+          contact: user?.phone || "",
+        },
+        notes: {
+          booking_type: "package",
+          package_id: pkg.id,
+        },
+        theme: {
+          color: "#0f766e",
+        },
+      });
+
       const { error: insertError } = await supabase.from("package_bookings").insert([
         {
           package_id: pkg.id,

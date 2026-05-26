@@ -17,6 +17,9 @@ export default function VehicleBooking() {
   const [pickupLocation, setPickupLocation] = useState("");
   const [dropLocation, setDropLocation] = useState("");
   const [distanceKm, setDistanceKm] = useState("");
+  const [places, setPlaces] = useState([]);
+  const [placesLoading, setPlacesLoading] = useState(true);
+  const [placesError, setPlacesError] = useState(false);
   const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(true);
   const [loadError, setLoadError] = useState(false);
@@ -71,6 +74,30 @@ export default function VehicleBooking() {
         if (!cancelled) setLoadError(true);
       } finally {
         if (!cancelled) setLoading(false);
+      }
+    })();
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+
+    setPlacesLoading(true);
+    setPlacesError(false);
+
+    (async () => {
+      try {
+        const { data, error } = await supabase.from("places").select("id, name").order("name", { ascending: true });
+        if (error) throw error;
+        if (cancelled) return;
+        setPlaces(data || []);
+      } catch {
+        if (!cancelled) setPlacesError(true);
+      } finally {
+        if (!cancelled) setPlacesLoading(false);
       }
     })();
 
@@ -201,12 +228,20 @@ export default function VehicleBooking() {
                   <select
                     value={pickupLocation}
                     onChange={(e) => setPickupLocation(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <option value="">Select Location</option>
-                    <option value="temple">Temple Entrance</option>
-                    <option value="station">Railway Station</option>
-                    <option value="airport">Airport</option>
-                    <option value="hotel">Hotel</option>
+                    disabled={placesLoading || placesError}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500">
+                    <option value="">
+                      {placesLoading
+                        ? "Loading places..."
+                        : placesError
+                          ? "Unable to load places"
+                          : "Select place"}
+                    </option>
+                    {places.map((place) => (
+                      <option key={place.id} value={place.name}>
+                        {place.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 
@@ -216,12 +251,20 @@ export default function VehicleBooking() {
                   <select
                     value={dropLocation}
                     onChange={(e) => setDropLocation(e.target.value)}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent">
-                    <option value="">Select Location</option>
-                    <option value="temple">Temple Entrance</option>
-                    <option value="station">Railway Station</option>
-                    <option value="airport">Airport</option>
-                    <option value="hotel">Hotel</option>
+                    disabled={placesLoading || placesError}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent disabled:bg-gray-100 disabled:text-gray-500">
+                    <option value="">
+                      {placesLoading
+                        ? "Loading places..."
+                        : placesError
+                          ? "Unable to load places"
+                          : "Select place"}
+                    </option>
+                    {places.map((place) => (
+                      <option key={place.id} value={place.name}>
+                        {place.name}
+                      </option>
+                    ))}
                   </select>
                 </div>
 

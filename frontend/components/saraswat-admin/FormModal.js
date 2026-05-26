@@ -44,6 +44,8 @@ export default function FormModal({ mode, table, item, onClose, onSuccess, onErr
       places: "Place",
       packages: "Package",
       rooms: "Room",
+      tourist_places: "Tourist Place",
+      vehicles: "Vehicle",
     };
     return labels[table] || table;
   };

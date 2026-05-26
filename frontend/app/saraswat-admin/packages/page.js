@@ -1,10 +1,11 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import AdminLayout from "@/components/saraswat-admin/AdminLayout";
 import FormModal from "@/components/saraswat-admin/FormModal";
 import { useToast } from "@/components/ToastProvider";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function PackagesPage() {
   const [packages, setPackages] = useState([]);
@@ -15,12 +16,9 @@ export default function PackagesPage() {
   const [currentItem, setCurrentItem] = useState(null);
   const messageHandlerRef = useRef(null);
   const { confirm } = useToast();
+  const { user, loading: authLoading } = useAuth();
 
-  useEffect(() => {
-    loadData();
-  }, []);
-
-  const loadData = async () => {
+  const loadData = useCallback(async () => {
     setLoading(true);
     try {
       const [packagesResult, placesResult] = await Promise.all([
@@ -38,7 +36,13 @@ export default function PackagesPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) return;
+    loadData();
+  }, [authLoading, user, loadData]);
 
   const handleAdd = () => {
     setModalMode("add");

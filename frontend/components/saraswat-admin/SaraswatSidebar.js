@@ -18,16 +18,17 @@ export default function SaraswatSidebar() {
     { name: "Dashboard", href: "/saraswat-admin", icon: "📊" },
     // { name: "Poojas", href: "/saraswat-admin/poojas", icon: "🪔" },
     { name: "Places", href: "/saraswat-admin/places", icon: "📍" },
+    { name: "Tourist Places", href: "/saraswat-admin/tourist-places", icon: "🗺️" },
     { name: "Packages", href: "/saraswat-admin/packages", icon: "📦" },
     { name: "Rooms", href: "/saraswat-admin/rooms", icon: "🛏️" },
+    { name: "Vehicles", href: "/saraswat-admin/vehicles", icon: "🚗" },
     { name: "Bookings", href: "/saraswat-admin/bookings", icon: "📋" },
   ];
 
   return (
-    <div className="w-64 bg-gray-900 min-h-screen text-white flex flex-col fixed left-0 top-0">
+    <div className="w-64 bg-gray-900 min-h-screen text-white flex flex-col fixed left-0 top-0 z-20">
       <div className="p-6 border-b border-gray-800">
         <h1 className="text-2xl font-bold">Saraswat Admin</h1>
-        <p className="text-gray-400 text-sm mt-1">Temple Management</p>
       </div>
 
       <nav className="flex-1 px-4 py-6">

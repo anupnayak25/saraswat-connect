@@ -40,6 +40,9 @@ supabase/migrations/add_role_column.sql
    - Create automatic user record creation trigger
    - Set up Row Level Security (RLS) policies
    - Enable proper access control
+5. **IMPORTANT (Admin UI)**: Run `supabase/migrations/add_admin_policies.sql` to:
+   - Allow admins to manage Places/Packages/Rooms/Poojas/Tourist Places
+   - Allow admins to view all bookings (Room/Vehicle/Package/Pooja/Trip)
 
 ### Step 2: Create Admin Users
 

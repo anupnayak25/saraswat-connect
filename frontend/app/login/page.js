@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
@@ -10,10 +10,20 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
-  const { signIn } = useAuth();
+  const { signIn, user, loading: authLoading } = useAuth();
   const router = useRouter();
   const searchParams = useSearchParams();
   const redirectTo = searchParams.get("redirect") || "/";
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    if (authLoading) return;
+
+    const role = user?.role || user?.user_metadata?.role || null;
+    if (role === "admin") {
+      router.push("/saraswat-admin");
+    }
+  }, [authLoading, router, user]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();

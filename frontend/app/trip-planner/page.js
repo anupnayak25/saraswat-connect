@@ -92,7 +92,7 @@ function TripPlannerContent() {
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-8">
-          <h1 className="text-4xl font-bold text-stone-800 mb-2">Plan Your Spiritual Journey</h1>
+          <h1 className="text-4xl font-bold text-stone-800 mb-2">Plan Your Journey</h1>
           <p className="text-stone-600">Create a customized trip to temples and spiritual destinations</p>
         </div>
 

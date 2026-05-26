@@ -1,9 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { supabase } from "@/lib/supabase";
 import Link from "next/link";
 import AdminLayout from "@/components/saraswat-admin/AdminLayout";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function SaraswatAdminDashboard() {
   const [stats, setStats] = useState({
@@ -14,32 +15,34 @@ export default function SaraswatAdminDashboard() {
     recentBookings: [],
   });
   const [loading, setLoading] = useState(true);
+  const { user, loading: authLoading } = useAuth();
 
-  useEffect(() => {
-    loadDashboardData();
-  }, []);
-
-  const loadDashboardData = async () => {
+  const loadDashboardData = useCallback(async () => {
     setLoading(true);
     try {
-      const [placesCount, packagesCount, roomsCount, roomBookings, vehicleBookings, packageBookings] =
+      const [placesCount, packagesCount, roomsCount, roomBookings, vehicleBookings, packageBookings, tripBookings] =
         await Promise.all([
           supabase.from("places").select("id", { count: "exact", head: true }),
           supabase.from("packages").select("id", { count: "exact", head: true }),
           supabase.from("rooms").select("id", { count: "exact", head: true }),
           supabase
             .from("room_bookings")
-            .select("*, room:rooms(name), user:users(full_name, email)")
+            .select("*, room:rooms(name), user:users(full_name, email)", { count: "exact" })
             .order("created_at", { ascending: false })
             .limit(5),
           supabase
             .from("vehicle_bookings")
-            .select("*, vehicle:vehicles(type), user:users(full_name, email)")
+            .select("*, vehicle:vehicles(type), user:users(full_name, email)", { count: "exact" })
             .order("created_at", { ascending: false })
             .limit(5),
           supabase
             .from("package_bookings")
-            .select("*, package:packages(name), user:users(full_name, email)")
+            .select("*, package:packages(name), user:users(full_name, email)", { count: "exact" })
+            .order("created_at", { ascending: false })
+            .limit(5),
+          supabase
+            .from("trip_bookings")
+            .select("*, user:users(full_name, email)", { count: "exact" })
             .order("created_at", { ascending: false })
             .limit(5),
         ]);
@@ -48,6 +51,7 @@ export default function SaraswatAdminDashboard() {
         ...(roomBookings.data || []).map((b) => ({ ...b, type: "Room" })),
         ...(vehicleBookings.data || []).map((b) => ({ ...b, type: "Vehicle" })),
         ...(packageBookings.data || []).map((b) => ({ ...b, type: "Package" })),
+        ...(tripBookings.data || []).map((b) => ({ ...b, type: "Trip" })),
       ]
         .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
         .slice(0, 10);
@@ -56,7 +60,8 @@ export default function SaraswatAdminDashboard() {
         places: placesCount.count || 0,
         packages: packagesCount.count || 0,
         rooms: roomsCount.count || 0,
-        totalBookings: (roomBookings.count || 0) + (vehicleBookings.count || 0) + (packageBookings.count || 0),
+        totalBookings:
+          (roomBookings.count || 0) + (vehicleBookings.count || 0) + (packageBookings.count || 0) + (tripBookings.count || 0),
         recentBookings: allRecentBookings,
       });
     } catch (error) {
@@ -64,7 +69,13 @@ export default function SaraswatAdminDashboard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    if (authLoading) return;
+    if (!user) return;
+    loadDashboardData();
+  }, [authLoading, user, loadDashboardData]);
 
   const quickLinks = [
     { name: "Manage Places", href: "/saraswat-admin/places", icon: "📍", color: "bg-blue-500" },

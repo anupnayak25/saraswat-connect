@@ -1,15 +1,14 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import AdminLayout from "@/components/saraswat-admin/AdminLayout";
 import FormModal from "@/components/saraswat-admin/FormModal";
 import { useToast } from "@/components/ToastProvider";
 import { useAuth } from "@/contexts/AuthContext";
 
-export default function PoojasPage() {
-  const [poojas, setPoojas] = useState([]);
-  const [places, setPlaces] = useState([]);
+export default function VehiclesPage() {
+  const [vehicles, setVehicles] = useState([]);
   const [loading, setLoading] = useState(false);
   const [showModal, setShowModal] = useState(false);
   const [modalMode, setModalMode] = useState("add");
@@ -21,18 +20,11 @@ export default function PoojasPage() {
   const loadData = useCallback(async () => {
     setLoading(true);
     try {
-      const [poojasResult, placesResult] = await Promise.all([
-        supabase.from("poojas").select("*, place:places(name)").order("created_at", { ascending: false }),
-        supabase.from("places").select("*"),
-      ]);
-
-      if (poojasResult.error) throw poojasResult.error;
-      if (placesResult.error) throw placesResult.error;
-
-      setPoojas(poojasResult.data || []);
-      setPlaces(placesResult.data || []);
+      const { data, error } = await supabase.from("vehicles").select("*").order("created_at", { ascending: false });
+      if (error) throw error;
+      setVehicles(data || []);
     } catch (error) {
-      console.error("Error loading data:", error);
+      console.error("Error loading vehicles:", error);
     } finally {
       setLoading(false);
     }
@@ -57,69 +49,66 @@ export default function PoojasPage() {
   };
 
   const handleDelete = async (id) => {
-    const confirmed = await confirm("Are you sure you want to delete this pooja?");
+    const confirmed = await confirm("Are you sure you want to delete this vehicle?");
     if (!confirmed) return;
 
     try {
-      const { error } = await supabase.from("poojas").delete().eq("id", id);
+      const { error } = await supabase.from("vehicles").delete().eq("id", id);
       if (error) throw error;
 
-      messageHandlerRef.current?.("success", "Pooja deleted successfully!");
+      messageHandlerRef.current?.("success", "Vehicle deleted successfully!");
       await loadData();
     } catch (error) {
-      messageHandlerRef.current?.("error", `Error deleting pooja: ${error.message}`);
+      messageHandlerRef.current?.("error", `Error deleting vehicle: ${error.message}`);
     }
   };
 
   const renderForm = (formData, handleChange) => (
     <>
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Name *</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Vehicle Type *</label>
         <input
           type="text"
-          name="name"
-          value={formData.name || ""}
-          onChange={handleChange}
-          required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-        />
-      </div>
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Type *</label>
-        <select
           name="type"
           value={formData.type || ""}
           onChange={handleChange}
           required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-          <option value="">Select type</option>
-          <option value="daily">Daily</option>
-          <option value="special">Special</option>
-          <option value="festival">Festival</option>
-        </select>
+          placeholder="e.g. Car, SUV, Bus"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+        />
       </div>
+
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Temple Place *</label>
-        <select
-          name="temple_place_id"
-          value={formData.temple_place_id || ""}
+        <label className="block text-sm font-medium text-gray-700 mb-2">Vehicle Number</label>
+        <input
+          type="text"
+          name="vehicle_number"
+          value={formData.vehicle_number || ""}
           onChange={handleChange}
-          required
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
-          <option value="">Select place</option>
-          {places.map((place) => (
-            <option key={place.id} value={place.id}>
-              {place.name}
-            </option>
-          ))}
-        </select>
+          placeholder="e.g. KA01AB1234"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+        />
       </div>
+
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Price *</label>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Capacity *</label>
         <input
           type="number"
-          name="price"
-          value={formData.price || ""}
+          name="capacity"
+          value={formData.capacity || ""}
+          onChange={handleChange}
+          required
+          min="1"
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
+        />
+      </div>
+
+      <div>
+        <label className="block text-sm font-medium text-gray-700 mb-2">Price per Km (₹) *</label>
+        <input
+          type="number"
+          name="price_per_km"
+          value={formData.price_per_km || ""}
           onChange={handleChange}
           required
           min="0"
@@ -127,39 +116,22 @@ export default function PoojasPage() {
           className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
         />
       </div>
+
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Timings</label>
-        <input
-          type="text"
-          name="timings"
-          value={formData.timings || ""}
+        <label className="block text-sm font-medium text-gray-700 mb-2">Availability Status *</label>
+        <select
+          name="availability_status"
+          value={formData.availability_status || "available"}
           onChange={handleChange}
-          placeholder="e.g., 6:00 AM - 8:00 PM"
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-        />
+          required
+          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent">
+          <option value="available">Available</option>
+          <option value="booked">Booked</option>
+          <option value="maintenance">Maintenance</option>
+        </select>
       </div>
+
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-2">Duration</label>
-        <input
-          type="text"
-          name="duration"
-          value={formData.duration || ""}
-          onChange={handleChange}
-          placeholder="e.g., 30 minutes"
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-        />
-      </div>
-      <div className="md:col-span-2">
-        <label className="block text-sm font-medium text-gray-700 mb-2">Description</label>
-        <textarea
-          name="description"
-          value={formData.description || ""}
-          onChange={handleChange}
-          rows="3"
-          className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-orange-500 focus:border-transparent"
-        />
-      </div>
-      <div className="md:col-span-2">
         <label className="block text-sm font-medium text-gray-700 mb-2">Image URL</label>
         <input
           type="url"
@@ -173,7 +145,7 @@ export default function PoojasPage() {
   );
 
   return (
-    <AdminLayout title="Poojas Management" description="Manage temple ceremonies and rituals">
+    <AdminLayout title="Vehicles Management" description="Manage cars, buses and other transport options">
       {({ showMessage }) => {
         messageHandlerRef.current = showMessage;
 
@@ -183,7 +155,7 @@ export default function PoojasPage() {
               <button
                 onClick={handleAdd}
                 className="px-6 py-3 bg-orange-600 text-white rounded-lg hover:bg-orange-700 transition font-medium">
-                + Add New Pooja
+                + Add New Vehicle
               </button>
             </div>
 
@@ -198,19 +170,19 @@ export default function PoojasPage() {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Name
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Type
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Temple
+                        Vehicle No.
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Price
+                        Capacity
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        Timings
+                        Price/Km
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Status
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Actions
@@ -218,31 +190,44 @@ export default function PoojasPage() {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {poojas.length === 0 ? (
+                    {vehicles.length === 0 ? (
                       <tr>
                         <td colSpan="6" className="px-6 py-12 text-center text-gray-500">
-                          No poojas found. Click &quot;Add New Pooja&quot; to create one.
+                          No vehicles found. Click &quot;Add New Vehicle&quot; to create one.
                         </td>
                       </tr>
                     ) : (
-                      poojas.map((pooja) => (
-                        <tr key={pooja.id} className="hover:bg-gray-50">
-                          <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{pooja.name}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{pooja.type}</td>
+                      vehicles.map((vehicle) => (
+                        <tr key={vehicle.id} className="hover:bg-gray-50">
+                          <td className="px-6 py-4 whitespace-nowrap font-medium text-gray-900">{vehicle.type}</td>
                           <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                            {pooja.place?.name || "N/A"}
+                            {vehicle.vehicle_number || "—"}
                           </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{pooja.price}</td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                            {pooja.timings || "N/A"}
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">{vehicle.capacity}</td>
+                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">₹{vehicle.price_per_km}</td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span
+                              className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                                vehicle.availability_status === "available"
+                                  ? "bg-green-100 text-green-800"
+                                  : vehicle.availability_status === "booked"
+                                    ? "bg-yellow-100 text-yellow-800"
+                                    : "bg-red-100 text-red-800"
+                              }`}>
+                              {vehicle.availability_status}
+                            </span>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                             <button
-                              onClick={() => handleEdit(pooja)}
+                              type="button"
+                              onClick={() => handleEdit(vehicle)}
                               className="text-blue-600 hover:text-blue-900 mr-4">
                               Edit
                             </button>
-                            <button onClick={() => handleDelete(pooja.id)} className="text-red-600 hover:text-red-900">
+                            <button
+                              type="button"
+                              onClick={() => handleDelete(vehicle.id)}
+                              className="text-red-600 hover:text-red-900">
                               Delete
                             </button>
                           </td>
@@ -257,7 +242,7 @@ export default function PoojasPage() {
             {showModal && (
               <FormModal
                 mode={modalMode}
-                table="poojas"
+                table="vehicles"
                 item={currentItem}
                 onClose={() => {
                   setShowModal(false);
@@ -267,7 +252,7 @@ export default function PoojasPage() {
                   setShowModal(false);
                   setCurrentItem(null);
                   loadData();
-                  showMessage("success", `Pooja ${modalMode === "add" ? "added" : "updated"} successfully!`);
+                  showMessage("success", `Vehicle ${modalMode === "add" ? "added" : "updated"} successfully!`);
                 }}
                 onError={(error) => showMessage("error", error)}
                 renderForm={renderForm}

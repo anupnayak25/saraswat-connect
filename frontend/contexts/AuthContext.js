@@ -72,13 +72,36 @@ export const AuthProvider = ({ children }) => {
     const {
       data: { subscription },
     } = supabase.auth.onAuthStateChange(async (_event, session) => {
-      if (session?.user) {
-        const userWithRole = await fetchUserWithRole(session.user);
-        setUser(userWithRole);
-      } else {
-        setUser(null);
+      try {
+        if (!session?.user) {
+          setUser(null);
+          setLoading(false);
+          return;
+        }
+
+        // Avoid refetching the user profile/role on every auth event.
+        // In particular, TOKEN_REFRESHED can happen frequently and can create
+        // feedback loops if we also hit the DB in response.
+        const shouldRefreshProfile =
+          _event === "SIGNED_IN" || _event === "USER_UPDATED" || _event === "INITIAL_SESSION";
+
+        if (shouldRefreshProfile) {
+          const userWithRole = await fetchUserWithRole(session.user);
+          // Preserve any existing enriched fields if the DB lookup fails intermittently.
+          setUser((prev) => (prev ? { ...userWithRole, role: prev.role ?? userWithRole.role } : userWithRole));
+        } else {
+          // Keep the existing enriched user object (role, profile fields) and only
+          // update core auth fields if needed.
+          setUser((prev) => {
+            if (!prev) return { ...session.user, role: session.user.user_metadata?.role || "user" };
+            return { ...session.user, ...prev, role: prev.role ?? session.user.user_metadata?.role ?? "user" };
+          });
+        }
+      } catch (error) {
+        console.error("Error handling auth change:", error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => subscription.unsubscribe();

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
+import logo from "@/assets/logo.png";
 
 export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -34,8 +35,8 @@ export default function Navbar() {
           <Link href="/" className="flex items-center space-x-3">
             <div className="w-12 h-12 bg-white rounded-full flex items-center justify-center">
               {/* Placeholder for logo - replace with actual image */}
-              <span className="text-teal-600 font-bold text-xl">SC</span>
-            </div>
+              <Image src={logo} alt="Saraswath Connect Logo" width={40} height={40} className="object-contain" />
+            </div>    
             <div>
               <h1 className="text-xl font-bold text-stone-800">Saraswath</h1>
               <p className="text-sm text-stone-600">Connect</p>

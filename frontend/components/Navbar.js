@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 
@@ -10,13 +10,19 @@ export default function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const {user, signOut} = useAuth();
   const pathname = usePathname();
+  const router = useRouter();
   const isHomePage = pathname === "/";
 
   const handleSignOut = async () => {
     try {
       await signOut();
+      setIsMenuOpen(false);
+      // Ensure UI updates even if the current page is cached.
+      router.push("/login");
+      router.refresh();
     } catch (error) {
-      console.error("Error signing out:", error);
+      // signOut already does best-effort local cleanup; avoid dev overlay spam.
+      console.warn("Error signing out", error);
     }
   };
 

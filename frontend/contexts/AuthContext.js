@@ -15,10 +15,24 @@ export const AuthProvider = ({ children }) => {
     const fallbackRole = authUser.user_metadata?.role || "user";
 
     // Fetch user data including role from users table
-    const { data, error } = await supabase.from("users").select("*").eq("id", authUser.id).maybeSingle();
+    const { data, error, status } = await supabase.from("users").select("*").eq("id", authUser.id).maybeSingle();
 
-    if (error) {
-      console.error("Error fetching user role:", error);
+    // PostgREST can return 406/PGRST116 for "no rows" in some cases. Treat that as "missing profile".
+    const isNoRows =
+      status === 406 ||
+      error?.code === "PGRST116" ||
+      error?.details === "The result contains 0 rows" ||
+      error?.message === "The result contains 0 rows";
+
+    if (error && !isNoRows) {
+      // Use warn (not error) to avoid noisy Next.js dev overlay.
+      console.warn("Error fetching user role", {
+        message: error?.message,
+        details: error?.details,
+        hint: error?.hint,
+        code: error?.code,
+        status,
+      });
       return { ...authUser, role: fallbackRole };
     }
 
@@ -39,7 +53,12 @@ export const AuthProvider = ({ children }) => {
         .single();
 
       if (insertError) {
-        console.error("Error creating user record:", insertError);
+        console.warn("Error creating user record", {
+          message: insertError?.message,
+          details: insertError?.details,
+          hint: insertError?.hint,
+          code: insertError?.code,
+        });
         return { ...authUser, role: fallbackRole };
       }
 
@@ -141,8 +160,28 @@ export const AuthProvider = ({ children }) => {
   };
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    setUser(null);
+    // Prefer local sign-out for reliability. Global sign-out can fail if the
+    // network is flaky, which can leave the UI "stuck" as logged-in.
+    let error = null;
+    try {
+      const result = await supabase.auth.signOut({ scope: "local" });
+      error = result?.error ?? null;
+    } catch (e) {
+      error = e;
+    } finally {
+      setUser(null);
+    }
+
+    if (error) {
+      // Best-effort cleanup: ensure local session is removed.
+      try {
+        await supabase.auth.signOut({ scope: "local" });
+      } catch {
+        // ignore
+      }
+      console.warn("Sign out encountered an error", error);
+    }
+
     return { error };
   };
 

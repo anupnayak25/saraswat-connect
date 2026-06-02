@@ -11,8 +11,48 @@ export default function BookingsPage() {
   const [filterType, setFilterType] = useState("all");
   const { user, loading: authLoading } = useAuth();
 
+  // Name of the deployed Supabase Edge Function for booking emails.
+  // Defaults to the legacy name used in this codebase.
+  const bookingEmailFunctionName = process.env.NEXT_PUBLIC_BOOKING_EMAIL_FUNCTION || "smooth-task";
+
   const bookingTabs = ["all", "room", "vehicle", "package", "trip"];
   const activeTabIndex = Math.max(0, bookingTabs.indexOf(filterType));
+
+  const decodeFunctionsErrorBody = async (rawBody) => {
+    if (!rawBody) return null;
+
+    // Supabase Functions errors may surface the body as string, object, or ReadableStream.
+    try {
+      if (typeof rawBody === "string") {
+        try {
+          return JSON.parse(rawBody);
+        } catch {
+          return rawBody;
+        }
+      }
+
+      // Browser ReadableStream (or a stream-like object)
+      const isStreamLike =
+        (typeof ReadableStream !== "undefined" && rawBody instanceof ReadableStream) ||
+        (rawBody && typeof rawBody.getReader === "function");
+
+      if (isStreamLike) {
+        const text = await new Response(rawBody).text();
+        try {
+          return JSON.parse(text);
+        } catch {
+          return text;
+        }
+      }
+
+      // Already an object
+      if (typeof rawBody === "object") return rawBody;
+    } catch {
+      // ignore
+    }
+
+    return null;
+  };
 
   const loadData = useCallback(async () => {
     setLoading(true);
@@ -88,11 +128,63 @@ export default function BookingsPage() {
     }
 
     try {
-      const { error } = await supabase.from(table).update({ booking_status: nextStatus }).eq("id", booking.id);
-      if (error) throw error;
+      // IMPORTANT: with RLS, PostgREST can return success but update 0 rows.
+      // Request the updated row back and verify the update actually happened.
+      const { data: updatedRows, error: updateError } = await supabase
+        .from(table)
+        .update({ booking_status: nextStatus })
+        .eq("id", booking.id)
+        .select("id, booking_status")
+        ;
 
-      setBookings((prev) => prev.map((b) => (b.id === booking.id && b.type === booking.type ? { ...b, booking_status: nextStatus } : b)));
-      showMessage?.("success", `Booking ${nextStatus}`);
+      if (updateError) throw updateError;
+      const updatedRow = Array.isArray(updatedRows) ? updatedRows[0] : null;
+      if (!updatedRow) {
+        throw new Error("Booking status was not updated (RLS blocked or booking not found)");
+      }
+
+      setBookings((prev) =>
+        prev.map((b) =>
+          b.id === booking.id && b.type === booking.type ? { ...b, booking_status: updatedRow.booking_status } : b
+        )
+      );
+
+      // Send email notification (best-effort)
+      let emailSent = true;
+      try {
+        const payload = {
+          bookingId: booking.id,
+          bookingType: (booking.type || "").toLowerCase(),
+          bookingStatus: nextStatus,
+        };
+
+        const { data, error } = await supabase.functions.invoke(bookingEmailFunctionName, {
+          body: payload,
+        });
+
+        if (error) {
+          const responseBody = await decodeFunctionsErrorBody(error?.context?.body);
+          const requestId =
+            typeof error?.context?.headers?.get === "function" ? error.context.headers.get("x-request-id") : undefined;
+
+          // Use warn (not error) to avoid Next.js dev overlay spam.
+          console.warn("Booking email function failed", {
+            functionName: bookingEmailFunctionName,
+            message: error?.message,
+            status: error?.context?.status,
+            requestId,
+            body: responseBody,
+          });
+          emailSent = false;
+        } else {
+          console.log("Booking email function success", { functionName: bookingEmailFunctionName, data });
+        }
+      } catch (err) {
+        console.warn("Booking email invoke failed", { functionName: bookingEmailFunctionName, err });
+        emailSent = false;
+      }
+
+      showMessage?.("success", `Booking ${nextStatus}${emailSent ? "" : " (email not sent)"}`);
     } catch (err) {
       showMessage?.("error", err?.message || "Failed to update booking status");
     }

@@ -59,6 +59,17 @@ CREATE POLICY "Admins can update tourist places" ON public.tourist_places FOR UP
 CREATE POLICY "Admins can delete tourist places" ON public.tourist_places FOR DELETE
   USING (EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin'));
 
+-- Vehicles
+DROP POLICY IF EXISTS "Admins can insert vehicles" ON public.vehicles;
+DROP POLICY IF EXISTS "Admins can update vehicles" ON public.vehicles;
+DROP POLICY IF EXISTS "Admins can delete vehicles" ON public.vehicles;
+CREATE POLICY "Admins can insert vehicles" ON public.vehicles FOR INSERT
+  WITH CHECK (EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin'));
+CREATE POLICY "Admins can update vehicles" ON public.vehicles FOR UPDATE
+  USING (EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin'));
+CREATE POLICY "Admins can delete vehicles" ON public.vehicles FOR DELETE
+  USING (EXISTS (SELECT 1 FROM public.users WHERE id = auth.uid() AND role = 'admin'));
+
 -- Admin reporting: bookings (read all)
 DROP POLICY IF EXISTS "Admins can read all room bookings" ON public.room_bookings;
 DROP POLICY IF EXISTS "Admins can read all vehicle bookings" ON public.vehicle_bookings;

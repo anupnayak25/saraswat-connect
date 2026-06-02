@@ -27,37 +27,49 @@ CREATE TRIGGER on_auth_user_created
 -- Enable Row Level Security on users table
 ALTER TABLE public.users ENABLE ROW LEVEL SECURITY;
 
+-- Helper: check whether the current user is an admin.
+-- IMPORTANT: SECURITY DEFINER avoids recursive policy evaluation on public.users.
+CREATE OR REPLACE FUNCTION public.is_admin()
+RETURNS boolean
+LANGUAGE sql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+  SELECT EXISTS (
+    SELECT 1
+    FROM public.users u
+    WHERE u.id = auth.uid()
+      AND u.role = 'admin'
+  );
+$$;
+
 -- Policy: Users can read their own data
+DROP POLICY IF EXISTS "Users can view own data" ON public.users;
 CREATE POLICY "Users can view own data" ON public.users
   FOR SELECT
   USING (auth.uid() = id);
 
 -- Policy: Users can update their own data
+DROP POLICY IF EXISTS "Users can update own data" ON public.users;
 CREATE POLICY "Users can update own data" ON public.users
   FOR UPDATE
   USING (auth.uid() = id);
 
 -- Policy: Allow authenticated users to insert their own record (for signup)
+DROP POLICY IF EXISTS "Users can insert own data" ON public.users;
 CREATE POLICY "Users can insert own data" ON public.users
   FOR INSERT
   WITH CHECK (auth.uid() = id);
 
 -- Policy: Admin users can read all users
+DROP POLICY IF EXISTS "Admins can view all users" ON public.users;
 CREATE POLICY "Admins can view all users" ON public.users
   FOR SELECT
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.users
-      WHERE id = auth.uid() AND role = 'admin'
-    )
-  );
+  USING (public.is_admin());
 
 -- Policy: Admin users can update all users (including roles)
+DROP POLICY IF EXISTS "Admins can update all users" ON public.users;
 CREATE POLICY "Admins can update all users" ON public.users
   FOR UPDATE
-  USING (
-    EXISTS (
-      SELECT 1 FROM public.users
-      WHERE id = auth.uid() AND role = 'admin'
-    )
-  );
+  USING (public.is_admin());
